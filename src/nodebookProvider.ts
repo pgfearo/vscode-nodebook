@@ -128,7 +128,7 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 		}
 
 		const notebookData: vscode.NotebookData = {
-			languages: ['javascript'],
+			languages: ['javascript', 'xpath'],
 			metadata: { cellRunnable: true },
 			cells: raw.map(item => ({
 				source: item.value,
