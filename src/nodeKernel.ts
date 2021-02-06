@@ -165,7 +165,8 @@ export class NodeKernel {
 					}		
 					const cellPath = `${this.tmpDirectory}/nodebook_cell_${cellUri.fragment}.js`;
 					this.pathToCell.set(cellPath, cell);
-					let data = "SaxonJS.XPath.evaluate(\`" + cell.document.getText() + "\`)";
+					const cellText = cell.document.getText().replace('{', '\\{').replace('}', '\\}');
+					let data = "SaxonJS.XPath.evaluate(\`" + cellText + "\`)";
 					data += `\n//@ sourceURL=${cellPath}`;	// trick to make node.js report the eval's source under this path
 					fs.writeFileSync(cellPath, data);
 
