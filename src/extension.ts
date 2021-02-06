@@ -9,7 +9,7 @@ import { NodebookContentProvider } from './nodebookProvider';
 export function activate(context: vscode.ExtensionContext) {
 
 	const nodebookContentProvider = new NodebookContentProvider();
-
+	ExtensionData.extensionPath = context.extensionPath;
 	context.subscriptions.push(
 
 		vscode.notebook.registerNotebookContentProvider('nodebook', nodebookContentProvider),
@@ -38,3 +38,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 export function deactivate() {
 }
+
+export class ExtensionData {
+	static extensionPath: string = '';
+} 

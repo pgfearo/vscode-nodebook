@@ -9,6 +9,7 @@ import * as fs from 'fs';
 import * as PATH from 'path';
 import * as os from 'os';
 import { DebugProtocol } from 'vscode-debugprotocol';
+import { ExtensionData } from './extension';
 const rmdir = require('rimraf');
 const getPort = require('get-port');
 
@@ -187,7 +188,7 @@ export class NodeKernel {
 				this.tmpDirectory = fs.mkdtempSync(PATH.join(os.tmpdir(), 'vscode-nodebook-'));
 			}
 			const saxonLoaderPath = `${this.tmpDirectory}/saxonLoader.js`;
-			const script = `const SaxonJS = require('/Users/philipf/Documents/github/vscode-nodebook/node_modules/saxon-js/')`;
+			const script = `const SaxonJS = require('${ExtensionData.extensionPath}/node_modules/saxon-js/')`;
 			fs.writeFileSync(saxonLoaderPath, script);
 			return saxonLoaderPath;
 		} catch(e) {
