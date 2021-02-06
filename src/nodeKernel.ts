@@ -85,7 +85,7 @@ export class NodeKernel {
 
 	public async eval(cell: vscode.NotebookCell): Promise<string> {
 
-		const cellPath = this.dumpCell(cell.uri.toString());
+		const cellPath = cell.language === 'xpath'? this.dumpCell(cell.uri.toString()) : this.dumpJSCell(cell.uri.toString());
 		if (cellPath && this.nodeRuntime && this.nodeRuntime.stdin) {
 
 			this.outputBuffer = '';
@@ -168,6 +168,34 @@ export class NodeKernel {
 					this.pathToCell.set(cellPath, cell);
 					const cellText = cell.document.getText().replace('{', '\\{').replace('}', '\\}').replace("'", "\\'").replace('"', '\\"');
 					let data = "SaxonJS.XPath.evaluate(\`" + cellText + "\`)";
+					data += `\n//@ sourceURL=${cellPath}`;	// trick to make node.js report the eval's source under this path
+					fs.writeFileSync(cellPath, data);
+
+					return cellPath;
+				}
+			}
+		} catch(e) {
+		}
+		return undefined;
+	}
+
+		/**
+	 * Store cell in temporary file and return its path or undefined if uri does not denote a cell.
+	 */
+	private dumpJSCell(uri: string): string | undefined {
+		try {
+			const cellUri = vscode.Uri.parse(uri, true);
+			if (cellUri.scheme === 'vscode-notebook-cell') {
+				// find cell in document by matching its URI
+				const cell = this.document.cells.find(c => c.uri.toString() === uri);
+				if (cell) {
+					if (!this.tmpDirectory) {
+						this.tmpDirectory = fs.mkdtempSync(PATH.join(os.tmpdir(), 'vscode-nodebook-'));
+					}		
+					const cellPath = `${this.tmpDirectory}/nodebook_cell_${cellUri.fragment}.js`;
+					this.pathToCell.set(cellPath, cell);
+
+					let data = cell.document.getText();
 					data += `\n//@ sourceURL=${cellPath}`;	// trick to make node.js report the eval's source under this path
 					fs.writeFileSync(cellPath, data);
 
