@@ -32,6 +32,7 @@ export class NodeKernel {
 				`--inspect=${this.debugPort}`,
 				`-e`, `require('repl').start({ prompt: '', ignoreUndefined: true })`
 			]);
+			this.runSaxonLoader();
 			if (this.nodeRuntime.stdout) {
 				this.nodeRuntime.stdout.on('data', (data: Buffer) => {
 					this.outputBuffer += data.toString();
@@ -96,6 +97,23 @@ export class NodeKernel {
 		throw new Error('Evaluation failed');
 	}
 
+	public async runSaxonLoader(): Promise<string> {
+
+		const saxonLoaderPath = this.dumpSaxonLoader();
+		if (saxonLoaderPath && this.nodeRuntime && this.nodeRuntime.stdin) {
+
+			this.outputBuffer = '';
+
+			this.nodeRuntime.stdin.write(`.load ${saxonLoaderPath}\n`);
+
+			//await new Promise(res => setTimeout(res, 500));	// wait a bit to collect all output that is associated with this eval
+			// silent:
+		  this.outputBuffer = '';
+			return Promise.resolve(this.outputBuffer);
+		}
+		throw new Error('Evaluation failed');
+	}
+
 	public createTracker(): vscode.DebugAdapterTracker {
 
 		return {
@@ -147,8 +165,7 @@ export class NodeKernel {
 					}		
 					const cellPath = `${this.tmpDirectory}/nodebook_cell_${cellUri.fragment}.js`;
 					this.pathToCell.set(cellPath, cell);
-
-					let data = cell.document.getText();
+					let data = "SaxonJS.XPath.evaluate(\`" + cell.document.getText() + "\`)";
 					data += `\n//@ sourceURL=${cellPath}`;	// trick to make node.js report the eval's source under this path
 					fs.writeFileSync(cellPath, data);
 
@@ -159,6 +176,24 @@ export class NodeKernel {
 		}
 		return undefined;
 	}
+
+		/**
+	 * Store cell in temporary file and return its path or undefined if uri does not denote a cell.
+	 */
+	private dumpSaxonLoader(): string | undefined {
+		try {
+			if (!this.tmpDirectory) {
+				this.tmpDirectory = fs.mkdtempSync(PATH.join(os.tmpdir(), 'vscode-nodebook-'));
+			}
+			const saxonLoaderPath = `${this.tmpDirectory}/saxonLoader.js`;
+			const script = `const SaxonJS = require('/Users/philipf/Documents/github/vscode-nodebook/node_modules/saxon-js/')`;
+			fs.writeFileSync(saxonLoaderPath, script);
+			return saxonLoaderPath;
+		} catch(e) {
+		}
+		return undefined;
+	}
+
 }
 
 // this vistor could be moved into the DAP npm module (it must be kept in sync with the DAP spec)

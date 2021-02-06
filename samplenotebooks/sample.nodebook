@@ -1,1 +1,17 @@
-[{"kind":2,"language":"javascript","value":"let a = 1;\nlet b = \"abc\";\nlet c = 3.14;\n\nfunction print(x) {\n    console.log(\"hello: \" + x);\n}\n\nconsole.log('end of 1st cell');"},{"kind":1,"language":"markdown","value":"A cell that calls a function in the first cell"},{"kind":2,"language":"javascript","value":"console.log('start of third cell');\nprint(`a: ${a}`);\nprint(`b: ${b}`);\nprint(`c: ${c}`);\nconsole.log('end of third cell');"}]
+[
+  {
+    "kind": 2,
+    "language": "xpath",
+    "value": "for $a in (1 to 20) return 'number: ' || $a"
+  },
+  {
+    "kind": 1,
+    "language": "markdown",
+    "value": "# An XPath Test"
+  },
+  {
+    "kind": 2,
+    "language": "javascript",
+    "value": "console.log('start of third cell');\nprint(`a: ${a}`);\nprint(`b: ${b}`);\nprint(`c: ${c}`);\nconsole.log('end of third cell');"
+  }
+]
