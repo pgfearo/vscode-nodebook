@@ -164,7 +164,10 @@ export class NodeKernel {
 					contextScript = `
 					var context = SaxonJS.XPath.evaluate("doc('${ExtensionData.lastEditorUri}')");
 					`;
-				}
+				} else {
+					contextScript = `
+					var context = SaxonJS.XPath.evaluate('()');
+					`;				}
 				// find cell in document by matching its URI
 				const cell = this.document.cells.find(c => c.uri.toString() === uri);
 				if (cell) {
