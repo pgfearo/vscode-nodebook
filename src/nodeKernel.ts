@@ -178,7 +178,9 @@ export class NodeKernel {
 					this.pathToCell.set(cellPath, cell);
 					const cellText = cell.document.getText().replace('{', '\\{').replace('}', '\\}').replace("'", "\\'").replace('"', '\\"');
 					let data = contextScript;
-					data += "SaxonJS.XPath.evaluate(\`" + cellText + "\`, context)";
+					data += "var result = SaxonJS.XPath.evaluate(\`" + cellText + "\`, context);\n";
+					data += "if (typeof result === 'object' && !Array.isArray(result) && Object.keys(result)[0] === '_nsMap') {SaxonJS.serialize(result)} else {result};"
+					// data += "SaxonJS.serialize(result);";
 					data += `\n//@ sourceURL=${cellPath}`;	// trick to make node.js report the eval's source under this path
 					fs.writeFileSync(cellPath, data);
 

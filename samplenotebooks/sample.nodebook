@@ -1,17 +1,1 @@
-[
-  {
-    "kind": 1,
-    "language": "markdown",
-    "value": "# An XPath Test"
-  },
-  {
-    "kind": 2,
-    "language": "xpath",
-    "value": "for $a in (1 to 20) return \"abc\n\" || $a"
-  },
-  {
-    "kind": 2,
-    "language": "javascript",
-    "value": "console.log('start of third cell');\nprint(`a: ${a}`);\nprint(`b: ${b}`);\nprint(`c: ${c}`);\nconsole.log('end of third cell');"
-  }
-]
+[{"kind":1,"language":"markdown","value":"# An XPath Test"},{"kind":2,"language":"xpath","value":"for $a in (1 to 20) return \"number\" || $a"},{"kind":2,"language":"javascript","value":"console.log('start of third cell');\nprint(`a: ${a}`);\nprint(`b: ${b}`);\nprint(`c: ${c}`);\nconsole.log('end of third cell');"}]
