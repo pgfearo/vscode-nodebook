@@ -158,6 +158,13 @@ export class NodeKernel {
 		try {
 			const cellUri = vscode.Uri.parse(uri, true);
 			if (cellUri.scheme === 'vscode-notebook-cell') {
+				// set context
+				let contextScript = '';
+				if (ExtensionData.lastEditorUri) {
+					contextScript = `
+					var context = SaxonJS.XPath.evaluate("doc('${ExtensionData.lastEditorUri}')");
+					`;
+				}
 				// find cell in document by matching its URI
 				const cell = this.document.cells.find(c => c.uri.toString() === uri);
 				if (cell) {
@@ -167,7 +174,8 @@ export class NodeKernel {
 					const cellPath = `${this.tmpDirectory}/nodebook_cell_${cellUri.fragment}.js`;
 					this.pathToCell.set(cellPath, cell);
 					const cellText = cell.document.getText().replace('{', '\\{').replace('}', '\\}').replace("'", "\\'").replace('"', '\\"');
-					let data = "SaxonJS.XPath.evaluate(\`" + cellText + "\`, context)";
+					let data = contextScript;
+					data += "SaxonJS.XPath.evaluate(\`" + cellText + "\`, context)";
 					data += `\n//@ sourceURL=${cellPath}`;	// trick to make node.js report the eval's source under this path
 					fs.writeFileSync(cellPath, data);
 
@@ -220,11 +228,7 @@ export class NodeKernel {
 			let script = `
 				const SaxonJS = require('${ExtensionData.extensionPath}/node_modules/saxon-js/');
 				`;
-			if (ExtensionData.lastEditorUri) {
-				script += `
-				const context = SaxonJS.XPath.evaluate("doc('${ExtensionData.lastEditorUri}')");
-				`;
-			}
+
 			console.log('script:');
 			console.log(script);
 			fs.writeFileSync(saxonLoaderPath, script);
