@@ -167,7 +167,7 @@ export class NodeKernel {
 					const cellPath = `${this.tmpDirectory}/nodebook_cell_${cellUri.fragment}.js`;
 					this.pathToCell.set(cellPath, cell);
 					const cellText = cell.document.getText().replace('{', '\\{').replace('}', '\\}').replace("'", "\\'").replace('"', '\\"');
-					let data = "SaxonJS.XPath.evaluate(\`" + cellText + "\`)";
+					let data = "SaxonJS.XPath.evaluate(\`" + cellText + "\`, context)";
 					data += `\n//@ sourceURL=${cellPath}`;	// trick to make node.js report the eval's source under this path
 					fs.writeFileSync(cellPath, data);
 
@@ -216,7 +216,17 @@ export class NodeKernel {
 				this.tmpDirectory = fs.mkdtempSync(PATH.join(os.tmpdir(), 'vscode-nodebook-'));
 			}
 			const saxonLoaderPath = `${this.tmpDirectory}/saxonLoader.js`;
-			const script = `const SaxonJS = require('${ExtensionData.extensionPath}/node_modules/saxon-js/')`;
+
+			let script = `
+				const SaxonJS = require('${ExtensionData.extensionPath}/node_modules/saxon-js/');
+				`;
+			if (ExtensionData.lastEditorUri) {
+				script += `
+				const context = SaxonJS.XPath.evaluate("doc('${ExtensionData.lastEditorUri}')");
+				`;
+			}
+			console.log('script:');
+			console.log(script);
 			fs.writeFileSync(saxonLoaderPath, script);
 			return saxonLoaderPath;
 		} catch(e) {
