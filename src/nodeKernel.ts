@@ -178,9 +178,11 @@ export class NodeKernel {
 					this.pathToCell.set(cellPath, cell);
 					const cellText = cell.document.getText().replace('{', '\\{').replace('}', '\\}').replace("'", "\\'").replace('"', '\\"');
 					let data = contextScript;
-					data += "var result = SaxonJS.XPath.evaluate(\`" + cellText + "\`, context);\n";
-					data += "if (typeof result === 'object' && !Array.isArray(result) && Object.keys(result)[0] === '_nsMap') {SaxonJS.serialize(result)} else {result};"
-					// data += "SaxonJS.serialize(result);";
+					data += "var preResult = SaxonJS.XPath.evaluate(\`" + cellText + "\`, context);\n";
+					data += `
+					writeResult(preResult);
+`
+					//data += "SaxonJS.serialize(result);";
 					data += `\n//@ sourceURL=${cellPath}`;	// trick to make node.js report the eval's source under this path
 					fs.writeFileSync(cellPath, data);
 
@@ -229,10 +231,85 @@ export class NodeKernel {
 				this.tmpDirectory = fs.mkdtempSync(PATH.join(os.tmpdir(), 'vscode-nodebook-'));
 			}
 			const saxonLoaderPath = `${this.tmpDirectory}/saxonLoader.js`;
+			const nl = "'\\n'";
 
 			let script = `
 				const SaxonJS = require('${ExtensionData.extensionPath}/node_modules/saxon-js/');
 				`;
+				script += `
+				let process = function(result, parts, level) {
+					const pad = ${nl} + (' '.repeat(level * 2));
+					const pad2 = ' '.repeat((level + 1) * 2);
+					const pad3 = ${nl} + (' '.repeat((level + 1) * 2));
+					const pad4 =  ' '.repeat(level * 2);
+
+
+				
+					if (typeof result === 'object')
+					{
+						if (Array.isArray(result)) {
+							const len = result.length;
+							if (level === 0) {
+								parts.push('-- ' + len + ' results --' + ${nl})
+							}
+							const onNewLines = len > 3;
+							parts.push('[');
+							result.forEach((item, index) => {
+								if (onNewLines) {
+									parts.push(pad3);
+								}
+								process(item, parts, level + 1);
+								if (index + 1 < len) {
+									parts.push(', ');
+								}      
+							});
+							if (onNewLines) {
+								parts.push(pad + ']');
+							} else {
+								parts.push(pad4, ']');
+							}
+						} else if (result === null) {
+							console.log('-- no results --');
+						} else if (result.constructor.name.includes('xmldom')) {
+							parts.push(pad + SaxonJS.serialize(result));
+						} else if (result.qname && result.value) {
+							parts.push(result.qname.local + ' = "' + result.value + '"');
+						} else {
+							parts.push('\{');
+							const entries = Object.entries(result);
+							const len = entries.length;
+							const onNewLines = len > 3;
+							entries.forEach((entry, index) => {
+								const [key, value] = entry;
+								if (onNewLines) {
+									parts.push(pad3);
+								}
+								parts.push(key.toString() + ': ');
+								process(value, parts, level + 1);
+								if (index + 1 < len) {
+									parts.push(',');
+								}
+							})
+							if (onNewLines) {
+								parts.push(pad + '\}');
+							} else {
+								parts.push(pad4, '\}');
+							}
+						}
+					} 
+					else {
+						return parts.push(JSON.stringify(result));
+						;
+					}
+				};
+				
+				let writeResult = function(result) {
+					const parts = [];
+					const level = 0;
+					process(result, parts, level);
+					console.log(parts.join(''));
+				}
+`
 
 			console.log('script:');
 			console.log(script);
