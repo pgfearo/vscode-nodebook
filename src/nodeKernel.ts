@@ -273,7 +273,7 @@ export class NodeKernel {
 						} else if (result.constructor.name.includes('xmldom')) {
 							parts.push(pad + SaxonJS.serialize(result));
 						} else if (result.qname && result.value) {
-							parts.push(result.qname.local + ' = "' + result.value + '"');
+							parts.push(result.qname.local + '="' + result.value + '"');
 						} else {
 							parts.push('\{');
 							const entries = Object.entries(result);
