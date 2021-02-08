@@ -27,7 +27,7 @@ export function activate(context: vscode.ExtensionContext) {
 				}
 			}
 		}
-	}
+	};
 
 	setActiveEditorUri(vscode.window.activeTextEditor);
 

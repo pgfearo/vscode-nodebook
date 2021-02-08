@@ -91,6 +91,5 @@
 		"rimraf": "^3.0.2",
 		"vscode-debugprotocol": "1.41.0",
 		"saxon-js": "^2.0.3"
-
 	}
 }

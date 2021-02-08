@@ -85,7 +85,7 @@ export class NodeKernel {
 
 	public async eval(cell: vscode.NotebookCell): Promise<string> {
 
-		const cellPath = cell.language === 'xpath'? this.dumpCell(cell.uri.toString()) : this.dumpJSCell(cell.uri.toString());
+		const cellPath = cell.language === 'xpath' ? this.dumpCell(cell.uri.toString()) : this.dumpJSCell(cell.uri.toString());
 		if (cellPath && this.nodeRuntime && this.nodeRuntime.stdin) {
 
 			this.outputBuffer = '';
@@ -109,7 +109,7 @@ export class NodeKernel {
 
 			//await new Promise(res => setTimeout(res, 500));	// wait a bit to collect all output that is associated with this eval
 			// silent:
-		  this.outputBuffer = '';
+			this.outputBuffer = '';
 			return Promise.resolve(this.outputBuffer);
 		}
 		throw new Error('Evaluation failed');
@@ -167,13 +167,14 @@ export class NodeKernel {
 				} else {
 					contextScript = `
 					var context = SaxonJS.XPath.evaluate('()');
-					`;				}
+					`;
+				}
 				// find cell in document by matching its URI
 				const cell = this.document.cells.find(c => c.uri.toString() === uri);
 				if (cell) {
 					if (!this.tmpDirectory) {
 						this.tmpDirectory = fs.mkdtempSync(PATH.join(os.tmpdir(), 'vscode-nodebook-'));
-					}		
+					}
 					const cellPath = `${this.tmpDirectory}/nodebook_cell_${cellUri.fragment}.js`;
 					this.pathToCell.set(cellPath, cell);
 					const cellText = cell.document.getText().replace('{', '\\{').replace('}', '\\}').replace("'", "\\'").replace('"', '\\"');
@@ -189,14 +190,14 @@ export class NodeKernel {
 					return cellPath;
 				}
 			}
-		} catch(e) {
+		} catch (e) {
 		}
 		return undefined;
 	}
 
-		/**
-	 * Store cell in temporary file and return its path or undefined if uri does not denote a cell.
-	 */
+	/**
+ * Store cell in temporary file and return its path or undefined if uri does not denote a cell.
+ */
 	private dumpJSCell(uri: string): string | undefined {
 		try {
 			const cellUri = vscode.Uri.parse(uri, true);
@@ -206,7 +207,7 @@ export class NodeKernel {
 				if (cell) {
 					if (!this.tmpDirectory) {
 						this.tmpDirectory = fs.mkdtempSync(PATH.join(os.tmpdir(), 'vscode-nodebook-'));
-					}		
+					}
 					const cellPath = `${this.tmpDirectory}/nodebook_cell_${cellUri.fragment}.js`;
 					this.pathToCell.set(cellPath, cell);
 
@@ -217,14 +218,14 @@ export class NodeKernel {
 					return cellPath;
 				}
 			}
-		} catch(e) {
+		} catch (e) {
 		}
 		return undefined;
 	}
 
-		/**
-	 * Store cell in temporary file and return its path or undefined if uri does not denote a cell.
-	 */
+	/**
+ * Store cell in temporary file and return its path or undefined if uri does not denote a cell.
+ */
 	private dumpSaxonLoader(): string | undefined {
 		try {
 			if (!this.tmpDirectory) {
@@ -232,11 +233,15 @@ export class NodeKernel {
 			}
 			const saxonLoaderPath = `${this.tmpDirectory}/saxonLoader.js`;
 			const nl = "'\\n'";
+			const escapedSpacePath = ExtensionData.extensionPath;
+			const joinedPath = PATH.join(escapedSpacePath, "node_modules", "saxon-js");
+			const escapedSlashPath = '"' + joinedPath.replace(/(\\)/g, '\\$1') + '"';
+
 
 			let script = `
-				const SaxonJS = require('${ExtensionData.extensionPath}/node_modules/saxon-js/');
+				const SaxonJS = require(${escapedSlashPath});
 				`;
-				script += `
+			script += `
 				let process = function(result, parts, level) {
 					const pad = ${nl} + (' '.repeat(level * 2));
 					const pad2 = ' '.repeat((level + 1) * 2);
@@ -315,7 +320,7 @@ export class NodeKernel {
 			console.log(script);
 			fs.writeFileSync(saxonLoaderPath, script);
 			return saxonLoaderPath;
-		} catch(e) {
+		} catch (e) {
 		}
 		return undefined;
 	}
