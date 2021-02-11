@@ -1,0 +1,12 @@
+<deltaxmlConfig xmlns="one.com" 
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+                xmlns:array="http://www.w3.org/2005/xpath-functions/array"
+                xmlns:map="http://www.w3.org/2005/xpath-functions/map" 
+                xmlns:math="http://www.w3.org/2005/xpath-functions/math">
+    <configProperty 
+        name="com.deltaxml.cores9api.DocumentComparator.debugFiles" 
+        value="true" /> 
+    <configProperty 
+        name="com.deltaxml.cmdline.PipelinedTextUI.debugTiming" 
+        value="true" />
+</deltaxmlConfig>

@@ -169,6 +169,16 @@ export class NodeKernel {
 					var context = SaxonJS.XPath.evaluate('()');
 					`;
 				}
+				contextScript += `
+					var options = {
+						namespaceContext: {
+							'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
+							'array': 'http://www.w3.org/2005/xpath-functions/array',
+							'map': 'http://www.w3.org/2005/xpath-functions/map',
+							'math': 'http://www.w3.org/2005/xpath-functions/math'
+						}
+					};
+				`;
 				// find cell in document by matching its URI
 				const cell = this.document.cells.find(c => c.uri.toString() === uri);
 				if (cell) {
@@ -179,7 +189,7 @@ export class NodeKernel {
 					this.pathToCell.set(cellPath, cell);
 					const cellText = cell.document.getText().replace('{', '\\{').replace('}', '\\}').replace("'", "\\'").replace('"', '\\"');
 					let data = contextScript;
-					data += "var preResult = SaxonJS.XPath.evaluate(\`" + cellText + "\`, context);\n";
+					data += "var preResult = SaxonJS.XPath.evaluate(\`" + cellText + "\`, context, options);\n";
 					data += `
 					writeResult(preResult);
 `
