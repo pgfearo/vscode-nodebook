@@ -161,8 +161,23 @@ export class NodeKernel {
 				// set context
 				let contextScript = '';
 				if (ExtensionData.lastEditorUri) {
+					let xmlnsXPath = `let $source := /* 
+					return 
+							map:merge(
+									for $pfx in in-scope-prefixes($source),
+											$ns in namespace-uri-for-prefix($pfx, $source)
+									return 
+											if ($pfx => string-length() ne 0) then
+													map:entry($pfx, $ns)
+											else
+													(: use prefix _d for default :)
+													map:entry(codepoints-to-string([95,100]), $ns)
+							)`
+					xmlnsXPath = xmlnsXPath.replace(/\s+/g, ' ');
+
 					contextScript = `
 					var context = SaxonJS.XPath.evaluate("doc('${ExtensionData.lastEditorUri}')");
+					var docXmlns = SaxonJS.XPath.evaluate("${xmlnsXPath}", context)
 					`;
 				} else {
 					contextScript = `
@@ -170,14 +185,16 @@ export class NodeKernel {
 					`;
 				}
 				contextScript += `
-					var options = {
-						namespaceContext: {
-							'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
-							'array': 'http://www.w3.org/2005/xpath-functions/array',
-							'map': 'http://www.w3.org/2005/xpath-functions/map',
-							'math': 'http://www.w3.org/2005/xpath-functions/math'
-						}
-					};
+				var baseXmlns = {
+					'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
+					'array': 'http://www.w3.org/2005/xpath-functions/array',
+					'map': 'http://www.w3.org/2005/xpath-functions/map',
+					'math': 'http://www.w3.org/2005/xpath-functions/math'
+				}
+				
+				var options = {
+					namespaceContext: Object.assign(baseXmlns, docXmlns)
+				};
 				`;
 				// find cell in document by matching its URI
 				const cell = this.document.cells.find(c => c.uri.toString() === uri);
