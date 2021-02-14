@@ -89,7 +89,6 @@ export class NodeKernel {
 		if (cellPath && this.nodeRuntime && this.nodeRuntime.stdin) {
 
 			this.outputBuffer = '';
-
 			this.nodeRuntime.stdin.write(`.load ${cellPath}\n`);
 
 			await new Promise(res => setTimeout(res, 500));	// wait a bit to collect all output that is associated with this eval
@@ -104,7 +103,6 @@ export class NodeKernel {
 		if (saxonLoaderPath && this.nodeRuntime && this.nodeRuntime.stdin) {
 
 			this.outputBuffer = '';
-
 			this.nodeRuntime.stdin.write(`.load ${saxonLoaderPath}\n`);
 
 			//await new Promise(res => setTimeout(res, 500));	// wait a bit to collect all output that is associated with this eval

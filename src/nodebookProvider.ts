@@ -176,6 +176,13 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 		if (nodebook) {
 			try {
 				output = await nodebook.eval(cell);
+				if (output.startsWith('Uncaught Error')) {
+					const msgs: string[] = [];
+					const lines = output.split('\n');
+					lines.forEach(line => line.trim().startsWith('message:') || line.trim().startsWith('code:') ? msgs.push(line) : null);
+					const msgsString = msgs.join('\n');
+					error = new Error(msgsString);
+				}
 			} catch(e) {
 				error = e;
 			}
