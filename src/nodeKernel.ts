@@ -177,7 +177,23 @@ export class NodeKernel {
 
 					contextScript = `
 					var context = SaxonJS.XPath.evaluate("doc('${ExtensionData.lastEditorUri}')");
-					var docXmlns = SaxonJS.XPath.evaluate("${xmlnsXPath}", context)
+					var docXmlns = SaxonJS.XPath.evaluate("${xmlnsXPath}", context);
+					var invDocXmlns = {};
+							Object.entries(docXmlns).forEach((kvp) => {
+								const [name, value] = kvp;
+								invDocXmlns[value] = name;
+							});
+					var convertPath = (path) => {
+						return path.replace(/Q{[^{]*}/g, (match) => {
+							const uri = match.substring(2, match.length - 1);
+							const pfx = invDocXmlns[uri];
+							if (pfx) {
+								return pfx === '_d'? '' : pfx + ':';
+							} else {
+								return match;
+							}
+							});
+					};
 					`;
 					contextScript += `
 					var baseXmlns = {
@@ -307,7 +323,7 @@ export class NodeKernel {
 						} else if (result === null) {
 							console.log('-- no results --');
 						} else if (result.constructor.name.includes('xmldom')) {
-							parts.push(pad + SaxonJS.serialize(result));
+							parts.push(pad + convertPath(SaxonJS.XPath.evaluate('path(.)', result)));
 						} else if (result.qname && result.value) {
 							parts.push(result.qname.local + '="' + result.value + '"');
 						} else {
