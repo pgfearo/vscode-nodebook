@@ -195,6 +195,9 @@ export class NodeKernel {
 				var options = {
 					namespaceContext: Object.assign(baseXmlns, docXmlns)
 				};
+				if (docXmlns['_d']) {
+					options['xpathDefaultNamespace'] = docXmlns['_d'];
+				}
 				`;
 				// find cell in document by matching its URI
 				const cell = this.document.cells.find(c => c.uri.toString() === uri);
