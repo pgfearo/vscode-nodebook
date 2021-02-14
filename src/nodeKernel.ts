@@ -179,26 +179,27 @@ export class NodeKernel {
 					var context = SaxonJS.XPath.evaluate("doc('${ExtensionData.lastEditorUri}')");
 					var docXmlns = SaxonJS.XPath.evaluate("${xmlnsXPath}", context)
 					`;
+					contextScript += `
+					var baseXmlns = {
+						'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
+						'array': 'http://www.w3.org/2005/xpath-functions/array',
+						'map': 'http://www.w3.org/2005/xpath-functions/map',
+						'math': 'http://www.w3.org/2005/xpath-functions/math'
+					}
+					
+					var options = {
+						namespaceContext: Object.assign(baseXmlns, docXmlns)
+					};
+					if (docXmlns['_d']) {
+						options['xpathDefaultNamespace'] = docXmlns['_d'];
+					}
+					`;
 				} else {
 					contextScript = `
 					var context = SaxonJS.XPath.evaluate('()');
+					var options = {};
 					`;
 				}
-				contextScript += `
-				var baseXmlns = {
-					'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
-					'array': 'http://www.w3.org/2005/xpath-functions/array',
-					'map': 'http://www.w3.org/2005/xpath-functions/map',
-					'math': 'http://www.w3.org/2005/xpath-functions/math'
-				}
-				
-				var options = {
-					namespaceContext: Object.assign(baseXmlns, docXmlns)
-				};
-				if (docXmlns['_d']) {
-					options['xpathDefaultNamespace'] = docXmlns['_d'];
-				}
-				`;
 				// find cell in document by matching its URI
 				const cell = this.document.cells.find(c => c.uri.toString() === uri);
 				if (cell) {
