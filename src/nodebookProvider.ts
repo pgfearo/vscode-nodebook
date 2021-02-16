@@ -27,6 +27,7 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 
 	private _localDisposables: vscode.Disposable[] = [];
 	private readonly _associations = new Map<string, [ProjectAssociation, Nodebook]>();
+	private runIndex = 0;
 
 
 	onDidChangeNotebook: vscode.Event<NotebookDocumentEditEvent> = new vscode.EventEmitter<NotebookDocumentEditEvent>().event;
@@ -173,8 +174,12 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 		let output = '';
 		let error: Error | undefined;
 		const nodebook = this.lookupNodebook(cell.uri);
+		const start = +new Date();
+
 		if (nodebook) {
 			try {
+				cell.metadata.runState = start;
+				cell.metadata.executionOrder = ++this.runIndex;
 				output = await nodebook.eval(cell);
 				if (output.startsWith('Uncaught Error')) {
 					const msgs: string[] = [];
@@ -188,6 +193,7 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 			}
 		}
 		if (error) {
+			cell.metadata.runState = vscode.NotebookCellRunState.Error;
 			cell.outputs = [{
 				outputKind: vscode.CellOutputKind.Error,
 				evalue: error.toString(),
@@ -195,6 +201,8 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 				traceback: []
 			}];
 		} else {
+			cell.metadata.lastRunDuration = +new Date() - start;
+			cell.metadata.runState = vscode.NotebookCellRunState.Success;
 			cell.outputs = [{
 				outputKind: vscode.CellOutputKind.Text,
 				text: output
