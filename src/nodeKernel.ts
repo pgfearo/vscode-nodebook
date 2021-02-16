@@ -202,7 +202,10 @@ export class NodeKernel {
 					}
 					
 					var options = {
-						namespaceContext: Object.assign(baseXmlns, docXmlns)
+						namespaceContext: Object.assign(baseXmlns, docXmlns),
+						params: {
+							'_': prevResult
+						}
 					};
 					if (docXmlns['_d']) {
 						options['xpathDefaultNamespace'] = docXmlns['_d'];
@@ -224,9 +227,9 @@ export class NodeKernel {
 					this.pathToCell.set(cellPath, cell);
 					const cellText = cell.document.getText().replace('{', '\\{').replace('}', '\\}').replace("'", "\\'").replace('"', '\\"');
 					let data = contextScript;
-					data += "var preResult = SaxonJS.XPath.evaluate(\`" + cellText + "\`, context, options);\n";
+					data += "prevResult = SaxonJS.XPath.evaluate(\`" + cellText + "\`, context, options);\n";
 					data += `
-					writeResult(preResult);
+					writeResult(prevResult);
 `
 					//data += "SaxonJS.serialize(result);";
 					data += `\n//@ sourceURL=${cellPath}`;	// trick to make node.js report the eval's source under this path
@@ -285,6 +288,7 @@ export class NodeKernel {
 
 			let script = `
 				const SaxonJS = require(${escapedSlashPath});
+				let prevResult = [];
 				`;
 			script += `
 				let process = function(result, parts, level) {
