@@ -321,9 +321,11 @@ export class NodeKernel {
 						} else if (result === null) {
 							console.log('-- no results --');
 						} else if (result.constructor.name.includes('xmldom')) {
-							parts.push(pad + convertPath(SaxonJS.XPath.evaluate('path(.)', result)));
+							const path = pad + convertPath(SaxonJS.XPath.evaluate('path(.)', result));
+							parts.push(path.trim());
 						} else if (result.qname && result.value) {
-							parts.push(result.qname.local + '="' + result.value + '"');
+							const path = pad + convertPath(SaxonJS.XPath.evaluate('path(.)', result))  + '="' + result.value + '"';
+							parts.push(path.trim());
 						} else {
 							parts.push('\{');
 							const entries = Object.entries(result);
