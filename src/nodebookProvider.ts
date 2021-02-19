@@ -5,7 +5,7 @@
 
 import * as vscode from 'vscode';
 import { Nodebook } from './nodebook';
-import { NotebookDocumentEditEvent } from 'vscode';
+import { CustomDocumentEditEvent, NotebookCellOutput, NotebookCellOutputItem } from 'vscode';
 
 interface RawNotebookCell {
 	language: string;
@@ -29,8 +29,7 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 	private readonly _associations = new Map<string, [ProjectAssociation, Nodebook]>();
 	private runIndex = 0;
 
-
-	onDidChangeNotebook: vscode.Event<NotebookDocumentEditEvent> = new vscode.EventEmitter<NotebookDocumentEditEvent>().event;
+	onDidChangeNotebook: vscode.Event<CustomDocumentEditEvent> = new vscode.EventEmitter<CustomDocumentEditEvent>().event;
 
 	constructor() {
 
@@ -140,7 +139,7 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 					editable: true,
 					runnable: true,
 					breakpointMargin: false
-				 }
+				}
 			}))
 		};
 
@@ -188,26 +187,36 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 					const msgsString = msgs.join('\n');
 					error = new Error(msgsString);
 				}
-			} catch(e) {
+			} catch (e) {
 				error = e;
 			}
 		}
+		const edit = new vscode.WorkspaceEdit();
+
 		if (error) {
+			// via workspace edit
+			const  errMetadata: vscode.WorkspaceEditEntryMetadata = {
+				needsConfirmation: false,
+				label: 'philsTest',
+				description: 'philsDescription'
+			}
+			const cellErrorItem: NotebookCellOutputItem = new NotebookCellOutputItem('text/plain', error.toString());
+			const cellErrorOuput = new NotebookCellOutput([cellErrorItem]);
+			edit.replaceNotebookCellOutput(_document.uri, cell.index, [cellErrorOuput], errMetadata);
 			cell.metadata.runState = vscode.NotebookCellRunState.Error;
-			cell.outputs = [{
-				outputKind: vscode.CellOutputKind.Error,
-				evalue: error.toString(),
-				ename: '',
-				traceback: []
-			}];
 		} else {
+			const  outMetadata: vscode.WorkspaceEditEntryMetadata = {
+				needsConfirmation: false,
+				label: 'philsTest',
+				description: 'philsDescription'
+			}
 			cell.metadata.lastRunDuration = +new Date() - start;
 			cell.metadata.runState = vscode.NotebookCellRunState.Success;
-			cell.outputs = [{
-				outputKind: vscode.CellOutputKind.Text,
-				text: output
-			}];
+			const cellOutItem: NotebookCellOutputItem = new NotebookCellOutputItem('text/plain', output);
+			const cellOutOutput = new NotebookCellOutput([cellOutItem]);
+			edit.replaceNotebookCellOutput(_document.uri, cell.index, [cellOutOutput], outMetadata);
 		}
+		await vscode.workspace.applyEdit(edit);
 	}
 
 	public cancelCellExecution(_document: vscode.NotebookDocument, _cell: vscode.NotebookCell): void {
@@ -215,9 +224,9 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 	}
 
 	public async executeAllCells(document: vscode.NotebookDocument): Promise<void> {
-	  for (const cell of document.cells) {
-		await this.executeCell(document, cell);
-	  }
+		for (const cell of document.cells) {
+			await this.executeCell(document, cell);
+		}
 	}
 
 	cancelAllCellsExecution(_document: vscode.NotebookDocument): void {
