@@ -172,7 +172,9 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 
 		if (nodebook) {
 			try {
-				//cell.metadata.with({runState: vscode.NotebookCellRunState.Running, executionOrder: ++this.runIndex })
+				const preEdit = new vscode.WorkspaceEdit();
+				preEdit.replaceNotebookCellMetadata(_document.uri, cell.index, new vscode.NotebookCellMetadata().with({runState: vscode.NotebookCellRunState.Running}));
+				await vscode.workspace.applyEdit(preEdit);
 				output = await nodebook.eval(cell);
 				if (output.startsWith('Uncaught Error')) {
 					const msgs: string[] = [];
@@ -186,8 +188,6 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 			}
 		}
 		const edit = new vscode.WorkspaceEdit();
-
-		// TODO: runState and lastRunDuration are not set properly - cell metadata is readonly
 
 		if (error) {
 			// via workspace edit
