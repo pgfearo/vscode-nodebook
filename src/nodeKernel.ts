@@ -83,15 +83,19 @@ export class NodeKernel {
 		}
 	}
 
+	private sleep(time: number) {
+		return new Promise(res => setTimeout(res, time));
+	}
+
 	public async eval(cell: vscode.NotebookCell): Promise<string> {
 
 		const cellPath = cell.language === 'xpath' ? this.dumpCell(cell.uri.toString()) : this.dumpJSCell(cell.uri.toString());
 		if (cellPath && this.nodeRuntime && this.nodeRuntime.stdin) {
-
 			this.outputBuffer = '';
 			this.nodeRuntime.stdin.write(`.load ${cellPath}\n`);
-
-			await new Promise(res => setTimeout(res, 500));	// wait a bit to collect all output that is associated with this eval
+			while (this.outputBuffer === '') {
+				await this.sleep(100);
+			}
 			return Promise.resolve(this.outputBuffer);
 		}
 		throw new Error('Evaluation failed');
@@ -108,8 +112,7 @@ export class NodeKernel {
 			//await new Promise(res => setTimeout(res, 500));	// wait a bit to collect all output that is associated with this eval
 			// silent:
 			this.outputBuffer = '';
-			return Promise.resolve(this.outputBuffer);
-		}
+			return Promise.resolve(this.outputBuffer); }
 		throw new Error('Evaluation failed');
 	}
 
