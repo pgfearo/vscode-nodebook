@@ -40,8 +40,8 @@ export class Nodebook implements vscode.Disposable {
 		this.debugging = !this.debugging;
 
 		for (let cell of document.cells) {
-			if (cell.cellKind === vscode.CellKind.Code) {
-				cell.metadata.breakpointMargin = this.debugging;
+			if (cell.cellKind === vscode.NotebookCellKind.Code) {
+				cell.metadata.with({breakpointMargin: this.debugging});
 			}
 		}
 	}

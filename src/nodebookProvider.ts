@@ -10,7 +10,7 @@ import { CustomDocumentEditEvent, NotebookCellOutput, NotebookCellOutputItem } f
 interface RawNotebookCell {
 	language: string;
 	value: string;
-	kind: vscode.CellKind;
+	kind: vscode.NotebookCellKind;
 	editable?: boolean;
 }
 
@@ -127,19 +127,16 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 			raw = [];
 		}
 
+		const notebookDocMetadata = new vscode.NotebookDocumentMetadata(true,true,true,true,);
+
 		const notebookData: vscode.NotebookData = {
-			languages: ['javascript', 'xpath'],
-			metadata: { cellRunnable: true },
+			metadata: notebookDocMetadata,
 			cells: raw.map(item => ({
 				source: item.value,
 				language: item.language,
 				cellKind: item.kind,
 				outputs: [],
-				metadata: {
-					editable: true,
-					runnable: true,
-					breakpointMargin: false
-				}
+				metadata: new vscode.NotebookCellMetadata().with({ custom: { testCellMetadata: 123 } })
 			}))
 		};
 
@@ -166,8 +163,6 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 		};
 	}
 
-
-
 	public async executeCell(_document: vscode.NotebookDocument, cell: vscode.NotebookCell): Promise<void> {
 
 		let output = '';
@@ -177,8 +172,7 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 
 		if (nodebook) {
 			try {
-				cell.metadata.runState = start;
-				cell.metadata.executionOrder = ++this.runIndex;
+				cell.metadata.with({runState: vscode.NotebookCellRunState.Running, executionOrder: ++this.runIndex })
 				output = await nodebook.eval(cell);
 				if (output.startsWith('Uncaught Error')) {
 					const msgs: string[] = [];
@@ -193,25 +187,27 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 		}
 		const edit = new vscode.WorkspaceEdit();
 
+		// TODO: runState and lastRunDuration are not set properly - cell metadata is readonly
+
 		if (error) {
 			// via workspace edit
 			const  errMetadata: vscode.WorkspaceEditEntryMetadata = {
 				needsConfirmation: false,
 				label: 'philsTest',
-				description: 'philsDescription'
+				description: 'philsDescription',				
 			}
 			const cellErrorItem: NotebookCellOutputItem = new NotebookCellOutputItem('text/plain', error.toString());
 			const cellErrorOuput = new NotebookCellOutput([cellErrorItem]);
 			edit.replaceNotebookCellOutput(_document.uri, cell.index, [cellErrorOuput], errMetadata);
-			cell.metadata.runState = vscode.NotebookCellRunState.Error;
+			cell.metadata.with({runState: vscode.NotebookCellRunState.Error});
 		} else {
 			const  outMetadata: vscode.WorkspaceEditEntryMetadata = {
 				needsConfirmation: false,
 				label: 'philsTest',
 				description: 'philsDescription'
 			}
-			cell.metadata.lastRunDuration = +new Date() - start;
-			cell.metadata.runState = vscode.NotebookCellRunState.Success;
+			const lastRunDuration = +new Date() - start;
+			cell.metadata.with({runState: vscode.NotebookCellRunState.Success, lastRunDuration: lastRunDuration});
 			const cellOutItem: NotebookCellOutputItem = new NotebookCellOutputItem('text/plain', output);
 			const cellOutOutput = new NotebookCellOutput([cellOutItem]);
 			edit.replaceNotebookCellOutput(_document.uri, cell.index, [cellOutOutput], outMetadata);
