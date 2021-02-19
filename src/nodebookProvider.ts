@@ -172,7 +172,7 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 
 		if (nodebook) {
 			try {
-				cell.metadata.with({runState: vscode.NotebookCellRunState.Running, executionOrder: ++this.runIndex })
+				//cell.metadata.with({runState: vscode.NotebookCellRunState.Running, executionOrder: ++this.runIndex })
 				output = await nodebook.eval(cell);
 				if (output.startsWith('Uncaught Error')) {
 					const msgs: string[] = [];
@@ -199,7 +199,7 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 			const cellErrorItem: NotebookCellOutputItem = new NotebookCellOutputItem('text/plain', error.toString());
 			const cellErrorOuput = new NotebookCellOutput([cellErrorItem]);
 			edit.replaceNotebookCellOutput(_document.uri, cell.index, [cellErrorOuput], errMetadata);
-			cell.metadata.with({runState: vscode.NotebookCellRunState.Error});
+			edit.replaceNotebookCellMetadata(_document.uri, cell.index, new vscode.NotebookCellMetadata().with({runState: vscode.NotebookCellRunState.Error}));
 		} else {
 			const  outMetadata: vscode.WorkspaceEditEntryMetadata = {
 				needsConfirmation: false,
@@ -207,10 +207,10 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 				description: 'philsDescription'
 			}
 			const lastRunDuration = +new Date() - start;
-			cell.metadata.with({runState: vscode.NotebookCellRunState.Success, lastRunDuration: lastRunDuration});
 			const cellOutItem: NotebookCellOutputItem = new NotebookCellOutputItem('text/plain', output);
 			const cellOutOutput = new NotebookCellOutput([cellOutItem]);
 			edit.replaceNotebookCellOutput(_document.uri, cell.index, [cellOutOutput], outMetadata);
+			edit.replaceNotebookCellMetadata(_document.uri, cell.index, new vscode.NotebookCellMetadata().with({runState: vscode.NotebookCellRunState.Success, lastRunDuration: lastRunDuration, executionOrder: ++this.runIndex}));
 		}
 		await vscode.workspace.applyEdit(edit);
 	}
