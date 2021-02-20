@@ -4,7 +4,7 @@ A work in progress. The *XPath 3.1 Notebook* extension for Visual Studio Code pr
 
 ## Evaluation
 
-Notebook cells set to the XPath language are evaluated using [Saxon-JS](https://www.saxonica.com/saxon-js/index.xml). The evaluation context is the document node of the most recently selected non-notebook editor.
+Notebook cells with the _XPath_ language id are evaluated using [Saxon-JS](https://www.saxonica.com/saxon-js/index.xml). The evaluation context is the document node of the most recently selected non-notebook editor.
 
 ## XPath cell features
 - Syntax highlighting
@@ -21,3 +21,11 @@ Notebook cells set to the XPath language are evaluated using [Saxon-JS](https://
 ## Implementation
 
 This extension provides a Notebook Kernel that effectively wraps the Node.js REPL based [NodeKernel](https://github.com/microsoft/vscode-nodebook).
+
+---
+
+### Screenshot
+
+*XPath 3.1 Notebook cells. Here, the result of the lower cell uses `$_` to reference the previous cell result:*
+
+![XPath31](images/xpath31notebook.png)
