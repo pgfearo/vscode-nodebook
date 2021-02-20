@@ -309,7 +309,7 @@ export class NodeKernel {
 							if (level === 0) {
 								parts.push('-- ' + len + ' results --' + ${nl})
 							}
-							const onNewLines = len > 3;
+							const onNewLines = true; // len > 3;
 							parts.push('[');
 							result.forEach((item, index) => {
 								if (onNewLines) {
@@ -337,7 +337,7 @@ export class NodeKernel {
 							parts.push('\{');
 							const entries = Object.entries(result);
 							const len = entries.length;
-							const onNewLines = len > 3;
+							const onNewLines = true; // len > 3;
 							entries.forEach((entry, index) => {
 								const [key, value] = entry;
 								if (onNewLines) {
