@@ -1,4 +1,5 @@
 <authors xmlns="http://authors.qutoric.com">
+    <description>List of authors</description>
     <author first="Serge" last="Abiteboul"/>
     <author first="Peter" last="Buneman"/>
     <author first="Dan" last="Suciu"/>
