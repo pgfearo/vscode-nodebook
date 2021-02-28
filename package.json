@@ -61,7 +61,17 @@
 					"group": "navigation@2"
 				}
 			]
-		}
+		},
+		"notebookOutputRenderer": [
+			{
+				"id": "xpath-html-renderer",
+				"displayName": "XPath Interactive HTML Renderer",
+				"entrypoint": "./out/xprenderer.js",
+				"mimeTypes": [
+					"xpath-notebook/xpath"
+				]
+			}
+		]
 	},
 	"scripts": {
 		"vscode:prepublish": "yarn run compile",

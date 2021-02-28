@@ -6,9 +6,9 @@
 		"lib": [
 			"es6"
 		],
-		"types": [
-			"vscode-notebook-renderer "
-		],
+		// "types": [
+		// 	"vscode-notebook-renderer"
+		// ],
 		"sourceMap": true,
 		"rootDir": "src",
 		"strict": true,
