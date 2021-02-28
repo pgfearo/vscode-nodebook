@@ -2,7 +2,7 @@
 
 A work in progress. The *XPath 3.1 Notebook* extension for Visual Studio Code provides Jupyter style notebook functionality for the XPath 3.1 language.
 
-## Evaluation
+## Notebook Cell Evaluation of XPath
 
 Notebook cells with the _XPath_ language id are evaluated using [Saxon-JS](https://www.saxonica.com/saxon-js/index.xml). The evaluation context is the document node of the most recently selected non-notebook editor.
 
@@ -18,10 +18,6 @@ Notebook cells with the _XPath_ language id are evaluated using [Saxon-JS](https
 - Evaluation result showså the XPath location of any XML nodes in the result 
 - XPath runtime error reporting - parses Node.js exception
 
-## Implementation
-
-This extension provides a Notebook Kernel that effectively wraps the Node.js REPL based [NodeKernel](https://github.com/microsoft/vscode-nodebook).
-
 ---
 
 ### Screenshot
@@ -29,3 +25,13 @@ This extension provides a Notebook Kernel that effectively wraps the Node.js REP
 *XPath 3.1 Notebook cells. Here, the result of the lower cell uses `$_` to reference the previous cell result:*
 
 ![XPath31](images/xpath31notebook.png)
+
+## Implementation
+
+This extension provides a Notebook Kernel that effectively wraps the Node.js REPL based [NodeKernel](https://github.com/microsoft/vscode-nodebook).
+
+To run from the reposistory, you need to first load dependencies. This project uses yarn for package management, so run:
+
+```
+yarn
+```
