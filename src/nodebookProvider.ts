@@ -204,12 +204,21 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 			const  outMetadata: vscode.WorkspaceEditEntryMetadata = {
 				needsConfirmation: false,
 				label: 'philsTest',
-				description: 'philsDescription'
+				description: 'philsDescription',
+			}
+			const  outRichMetadata: vscode.WorkspaceEditEntryMetadata = {
+				needsConfirmation: false,
+				label: 'philsTest2',
+				description: 'philsDescription2',
 			}
 			const lastRunDuration = +new Date() - start;
 			const cellOutItem: NotebookCellOutputItem = new NotebookCellOutputItem('text/plain', output);
-			const cellOutOutput = new NotebookCellOutput([cellOutItem]);
+			const cellRichOutItem: NotebookCellOutputItem = new NotebookCellOutputItem('xpath-notebook/xpath', output);
+			const cellOutOutput = new NotebookCellOutput([cellOutItem, cellRichOutItem]);
+
 			edit.replaceNotebookCellOutput(_document.uri, cell.index, [cellOutOutput], outMetadata);
+
+			///
 			edit.replaceNotebookCellMetadata(_document.uri, cell.index, new vscode.NotebookCellMetadata().with({runState: vscode.NotebookCellRunState.Success, lastRunDuration: lastRunDuration, executionOrder: ++this.runIndex}));
 		}
 		await vscode.workspace.applyEdit(edit);
