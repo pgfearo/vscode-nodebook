@@ -295,19 +295,21 @@ export class NodeKernel {
 				`;
 			script += `
 				let process = function(result, parts, level) {
-					const pad = ${nl} + (' '.repeat(level * 2));
-					const pad2 = ' '.repeat((level + 1) * 2);
-					const pad3 = ${nl} + (' '.repeat((level + 1) * 2));
-					const pad4 =  ' '.repeat(level * 2);
-
-
+					// const pad = ${nl} + (' '.repeat(level * 2));
+					// const pad2 = ' '.repeat((level + 1) * 2);
+					// const pad3 = ${nl} + (' '.repeat((level + 1) * 2));
+					// const pad4 =  ' '.repeat(level * 2);
+					const pad = '';
+					const pad2 = '';
+					const pad3 = '';
+					const pad4 = '';
 				
 					if (typeof result === 'object')
 					{
 						if (Array.isArray(result)) {
 							const len = result.length;
 							if (level === 0) {
-								parts.push('-- ' + len + ' results --' + ${nl})
+								// parts.push('-- ' + len + ' results --' + ${nl})
 							}
 							const onNewLines = true; // len > 3;
 							parts.push('[');
