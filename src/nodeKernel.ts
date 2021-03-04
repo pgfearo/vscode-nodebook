@@ -328,11 +328,16 @@ export class NodeKernel {
 						} else if (result === null) {
 							console.log('-- no results --');
 						} else if (result.constructor.name.includes('xmldom')) {
-							const path = pad + convertPath(SaxonJS.XPath.evaluate('path(.)', result));
-							parts.push(path.trim());
+							let path = pad + convertPath(SaxonJS.XPath.evaluate('path(.)', result));
+							path = path.trim();
+							const sValue = SaxonJS.XPath.evaluate('string(.)', result);
+							
+							parts.push('{"node": {"value": ' + JSON.stringify(sValue) + '}, {"path": ' + JSON.stringify(path) + '}}');
 						} else if (result.qname && result.value) {
-							const path = pad + convertPath(SaxonJS.XPath.evaluate('path(.)', result))  + '="' + result.value + '"';
-							parts.push(path.trim());
+							let path = pad + convertPath(SaxonJS.XPath.evaluate('path(.)', result));
+							path = path.trim();
+							const sValue = result.value;
+							parts.push('{"attribute": {"value": ' + JSON.stringify(sValue) + '}, {"path": ' + JSON.stringify(path) + '}}');
 						} else {
 							parts.push('\{');
 							const entries = Object.entries(result);
@@ -343,7 +348,8 @@ export class NodeKernel {
 								if (onNewLines) {
 									parts.push(pad3);
 								}
-								parts.push(key.toString() + ': ');
+								const sKey = key.value? key.value : key;
+								parts.push(JSON.stringify(sKey) + ': ');
 								process(value, parts, level + 1);
 								if (index + 1 < len) {
 									parts.push(',');
