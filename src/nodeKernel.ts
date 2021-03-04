@@ -332,12 +332,12 @@ export class NodeKernel {
 							path = path.trim();
 							const sValue = SaxonJS.XPath.evaluate('string(.)', result);
 							
-							parts.push('{"node": {"value": ' + JSON.stringify(sValue) + '}, "path": ' + JSON.stringify(path) + '}');
+							parts.push('{"𐂷node": {"value": ' + JSON.stringify(sValue) + ', "path": ' + JSON.stringify(path) + '}}');
 						} else if (result.qname && result.value) {
 							let path = pad + convertPath(SaxonJS.XPath.evaluate('path(.)', result));
 							path = path.trim();
 							const sValue = result.value;
-							parts.push('{"attribute": {"value": ' + JSON.stringify(sValue) + '}, "path": ' + JSON.stringify(path) + '}');
+							parts.push('{"𐂷attribute": {"value": ' + JSON.stringify(sValue) + ', "path": ' + JSON.stringify(path) + '}}');
 						} else {
 							parts.push('\{');
 							const entries = Object.entries(result);
