@@ -295,14 +295,14 @@ export class NodeKernel {
 				`;
 			script += `
 				let process = function(result, parts, level) {
-					// const pad = ${nl} + (' '.repeat(level * 2));
-					// const pad2 = ' '.repeat((level + 1) * 2);
-					// const pad3 = ${nl} + (' '.repeat((level + 1) * 2));
-					// const pad4 =  ' '.repeat(level * 2);
-					const pad = '';
-					const pad2 = '';
-					const pad3 = '';
-					const pad4 = '';
+					const pad = ${nl} + (' '.repeat(level * 2));
+					const pad2 = ' '.repeat((level + 1) * 2);
+					const pad3 = ${nl} + (' '.repeat((level + 1) * 2));
+					const pad4 =  ' '.repeat(level * 2);
+					// const pad = '';
+					// const pad2 = '';
+					// const pad3 = '';
+					// const pad4 = '';
 				
 					if (typeof result === 'object')
 					{
@@ -328,7 +328,7 @@ export class NodeKernel {
 								parts.push(pad4, ']');
 							}
 						} else if (result === null) {
-							console.log('-- no results --');
+							parts.push('[]');
 						} else if (result.constructor.name.includes('xmldom')) {
 							let path = pad + convertPath(SaxonJS.XPath.evaluate('path(.)', result));
 							path = path.trim();

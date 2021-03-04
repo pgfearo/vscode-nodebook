@@ -214,11 +214,19 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 			const lastRunDuration = +new Date() - start;
 			//const parsed = JSON.parse(output);
 			console.log('parsed', output);
-			const cellOutItem: NotebookCellOutputItem = new NotebookCellOutputItem('application/json', JSON.parse(output));
-			const cellRichOutItem: NotebookCellOutputItem = new NotebookCellOutputItem('xpath-notebook/xpath', output);
-			const cellOutOutput = new NotebookCellOutput([cellOutItem, cellRichOutItem]);
+			if (cell.language === 'xpath') {
+				const cellOutItem: NotebookCellOutputItem = new NotebookCellOutputItem('application/json', JSON.parse(output));
+				const cellRichOutItem: NotebookCellOutputItem = new NotebookCellOutputItem('xpath-notebook/xpath', output);
+				const cellOutOutput = new NotebookCellOutput([cellOutItem, cellRichOutItem]);
+	
+				edit.replaceNotebookCellOutput(_document.uri, cell.index, [cellOutOutput], outMetadata);
+			} else {
+				const cellOutItem: NotebookCellOutputItem = new NotebookCellOutputItem('text/plain', output);
+				const cellOutOutput = new NotebookCellOutput([cellOutItem]);
+	
+				edit.replaceNotebookCellOutput(_document.uri, cell.index, [cellOutOutput], outMetadata);
+			}
 
-			edit.replaceNotebookCellOutput(_document.uri, cell.index, [cellOutOutput], outMetadata);
 
 			///
 			edit.replaceNotebookCellMetadata(_document.uri, cell.index, new vscode.NotebookCellMetadata().with({runState: vscode.NotebookCellRunState.Success, lastRunDuration: lastRunDuration, executionOrder: ++this.runIndex}));
