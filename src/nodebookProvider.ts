@@ -212,7 +212,9 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 				description: 'philsDescription2',
 			}
 			const lastRunDuration = +new Date() - start;
-			const cellOutItem: NotebookCellOutputItem = new NotebookCellOutputItem('text/plain', output);
+			//const parsed = JSON.parse(output);
+			console.log('parsed', output);
+			const cellOutItem: NotebookCellOutputItem = new NotebookCellOutputItem('application/json', JSON.parse(output));
 			const cellRichOutItem: NotebookCellOutputItem = new NotebookCellOutputItem('xpath-notebook/xpath', output);
 			const cellOutOutput = new NotebookCellOutput([cellOutItem, cellRichOutItem]);
 

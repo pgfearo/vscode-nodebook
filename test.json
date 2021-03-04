@@ -1,0 +1,25 @@
+{
+  "book": {
+    "publisher": "Morgan Kaufmann Publishers",
+    "title": "Data on the Web",
+    "year": 2000,
+    "author": [
+      {
+        "attrFirst": {"attribute": {"value": "Serge"}, "path": "/authors[1]/author[1]/@first"},
+        "first": "Serge",
+        "last": "Abiteboul"
+      }, 
+      {
+        "attrFirst": {"attribute": {"value": "Peter"}, "path": "/authors[1]/author[2]/@first"},
+        "first": "Peter",
+        "last": "Buneman"
+      }, 
+      {
+        "attrFirst": {"attribute": {"value": "Dan"}, "path": "/authors[1]/author[3]/@first"},
+        "first": "Dan",
+        "last": "Suciu"
+      }
+    ],
+    "price": 39.95
+  }
+}
