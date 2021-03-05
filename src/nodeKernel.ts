@@ -290,6 +290,9 @@ export class NodeKernel {
 
 
 			let script = `
+				let deQuote = function(text) {
+					return text.substring(1, text.length - 1);
+				}
 				const SaxonJS = require(${escapedSlashPath});
 				let prevResult = [];
 				`;
@@ -333,13 +336,12 @@ export class NodeKernel {
 							let path = pad + convertPath(SaxonJS.XPath.evaluate('path(.)', result));
 							path = path.trim();
 							const sValue = SaxonJS.XPath.evaluate('string(.)', result);
-							
-							parts.push('{"𐂷node": {"value": ' + JSON.stringify(sValue) + ', "path": ' + JSON.stringify(path) + '}}');
+							parts.push('"𐂷 ' + deQuote(JSON.stringify(path)) + ' ' + deQuote(JSON.stringify(sValue)) + '"');
 						} else if (result.qname && result.value) {
 							let path = pad + convertPath(SaxonJS.XPath.evaluate('path(.)', result));
 							path = path.trim();
 							const sValue = result.value;
-							parts.push('{"𐂷attribute": {"value": ' + JSON.stringify(sValue) + ', "path": ' + JSON.stringify(path) + '}}');
+							parts.push('"𐂷 ' + deQuote(JSON.stringify(path)) + ' ' + deQuote(JSON.stringify(sValue)) + '"');
 						} else {
 							parts.push('\{');
 							const entries = Object.entries(result);
