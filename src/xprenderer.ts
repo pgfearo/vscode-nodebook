@@ -66,6 +66,12 @@ notebookApi.onDidCreateOutput(evt => {
     }
   });
   const markedLines = outLines.join('');
-  evt.element.innerHTML = `<pre><code style="text-decoration: none">${markedLines}</code></pre>`;
+  evt.element.innerHTML = `
+  <ul>
+  <li style="border-style: solid; border-width: 1px; border-color: #ffffff50; padding: 1px 1px 1px 1px">A list item</li>
+  <li style="border-style: solid; border-width: 1px; border-color: #ffffff50; padding: 1px 1px 1px 1px">Second list item</li>
+  </ul>
+  <pre><code style="text-decoration: none">${markedLines}</code></pre>
+  `;
 });
 
