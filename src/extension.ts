@@ -6,6 +6,21 @@
 import { config } from 'process';
 import * as vscode from 'vscode';
 import { NodebookContentProvider } from './nodebookProvider';
+import { XpathResultTokenProvider } from './xpathResultTokenProvider';
+
+const tokenModifiers = new Map<string, number>();
+
+const legend = (function () {
+	const tokenTypesLegend = XpathResultTokenProvider.getTextmateTypeLegend();
+
+	const tokenModifiersLegend = [
+		'declaration', 'documentation', 'member', 'static', 'abstract', 'deprecated',
+		'modification', 'async'
+	];
+	tokenModifiersLegend.forEach((tokenModifier, index) => tokenModifiers.set(tokenModifier, index));
+
+	return new vscode.SemanticTokensLegend(tokenTypesLegend, tokenModifiersLegend);
+})();
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -32,7 +47,7 @@ export function activate(context: vscode.ExtensionContext) {
 	setActiveEditorUri(vscode.window.activeTextEditor);
 
 	context.subscriptions.push(
-
+		vscode.languages.registerDocumentSemanticTokensProvider({ language: 'json' }, new XpathResultTokenProvider(), legend),
 		vscode.notebook.registerNotebookContentProvider('nodebook', nodebookContentProvider),
 
 		vscode.commands.registerCommand('nodebook.toggleDebugging', () => {

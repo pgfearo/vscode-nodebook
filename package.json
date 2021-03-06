@@ -16,6 +16,11 @@
 		"onDebugDynamicConfigurations:node"
 	],
 	"main": "./out/extension.js",
+	"configurationDefaults": {
+		"[json]": {
+			"editor.semanticHighlighting.enabled": true
+		}
+	},
 	"contributes": {
 		"languages": [
 			{
