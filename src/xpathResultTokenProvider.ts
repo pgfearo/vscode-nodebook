@@ -74,7 +74,10 @@ export class XpathResultTokenProvider implements vscode.DocumentSemanticTokensPr
                     break;
                 default:
                     if (lineType === LineType.Object) {
-
+                        let propNameOffset = tLine.indexOf('\u1680');
+                        if (propNameOffset > -1) {
+                            this.pushTokens(tLine, propNameOffset - 1, padding, builder, lineNum, line);
+                        }
                     }
             }
         });
@@ -85,19 +88,19 @@ export class XpathResultTokenProvider implements vscode.DocumentSemanticTokensPr
     private pushTokens(tLine: string, propNameOffset: number, padding: number, builder: vscode.SemanticTokensBuilder, lineNum: number, line: string) {
         const spacePos = tLine.indexOf(' ', 3 + propNameOffset);
         const pathStart = padding + 2;
-        builder.push(lineNum, padding, 1, TokenType.xmlPunctuation, 0);
-        builder.push(lineNum, padding + 1, 1, TokenType.xmlPunctuation, 0);
+        builder.push(lineNum, padding + propNameOffset, 1, TokenType.xmlPunctuation, 0);
+        builder.push(lineNum, padding + propNameOffset + 1, 1, TokenType.xmlPunctuation, 0);
         const endPos = tLine.endsWith(',') ? line.length - 2 : line.length - 1;
         builder.push(lineNum, endPos, 1, TokenType.xmlPunctuation, 0);
-        const path = tLine.substring(0, spacePos);
+        const path = tLine.substring(propNameOffset, spacePos);
         const pathParts = path.split('@');
         let prevPartLen = 0;
         pathParts.forEach((part, index) => {
             if (index === 0) {
-                builder.push(lineNum, pathStart, part.length - 2, TokenType.nodeNameTest, 0);
+                builder.push(lineNum, pathStart + propNameOffset, part.length - 2, TokenType.nodeNameTest, 0);
                 prevPartLen = part.length;
             } else {
-                builder.push(lineNum, pathStart + prevPartLen - 2, part.length + 1, TokenType.attributeNameTest, 0);
+                builder.push(lineNum, pathStart + propNameOffset + prevPartLen - 2, part.length + 1, TokenType.attributeNameTest, 0);
             }
         });
     }
