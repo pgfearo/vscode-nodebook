@@ -24,8 +24,6 @@ Notebook cells with the _XPath_ language id are evaluated using [Saxon-JS](https
 
 *XPath 3.1 Notebook cells. Here, the result of the lower cell uses `$_` to reference the previous cell result:*
 
-![XPath31](images/xpath31notebook.png)
-
 ## Implementation
 
 This extension provides a Notebook Kernel that effectively wraps the Node.js REPL based [NodeKernel](https://github.com/microsoft/xpath-notebook).

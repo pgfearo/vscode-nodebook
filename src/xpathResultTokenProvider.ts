@@ -39,7 +39,7 @@ export class XpathResultTokenProvider implements vscode.DocumentSemanticTokensPr
         return XpathResultTokenProvider.textmateTypes;
     }
 
-    async provideDocumentSemanticTokens(document: vscode.TextDocument, token: vscode.CancellationToken): Promise<vscode.SemanticTokens> {
+    async provideDocumentSemanticTokens(document: vscode.TextDocument): Promise<vscode.SemanticTokens> {
         // console.log('provideDocumentSemanticTokens');
         const builder = new vscode.SemanticTokensBuilder();
         const stack: Stack = [];

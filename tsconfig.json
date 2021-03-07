@@ -9,7 +9,6 @@
 			"ES6"
 		],
 		"types": [
-			"vscode",
 			"vscode-notebook-renderer",
 			"node"
 		],
