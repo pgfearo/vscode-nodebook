@@ -58,23 +58,8 @@ export class XpathResultTokenProvider implements vscode.DocumentSemanticTokensPr
             switch (char) {
                 case '\u1680':
                     if (tLine.charAt(2) === '/') {
-                        const spacePos = tLine.indexOf(' ', 3);
-                        const pathStart = padding + 2;
-                        builder.push(lineNum, padding, 1, TokenType.xmlPunctuation, 0);
-                        builder.push(lineNum, padding + 1, 1, TokenType.xmlPunctuation, 0);
-                        const endPos = tLine.endsWith(',')? line.length - 2 : line.length - 1;
-                        builder.push(lineNum, endPos, 1, TokenType.xmlPunctuation, 0);
-                        const path = tLine.substring(0, spacePos);
-                        const pathParts = path.split('@');
-                        let prevPartLen = 0;
-                        pathParts.forEach((part, index) => {
-                            if (index === 0) {
-                                builder.push(lineNum, pathStart, part.length - 2, TokenType.nodeNameTest, 0);
-                                prevPartLen = part.length;
-                            } else {
-                                builder.push(lineNum, pathStart + prevPartLen - 2, part.length + 1, TokenType.attributeNameTest, 0);
-                            }
-                        });
+                        const propNameOffset = 0;
+                        this.pushTokens(tLine, propNameOffset, padding, builder, lineNum, line);
                     }
                     break;
                 case '{':
@@ -95,5 +80,25 @@ export class XpathResultTokenProvider implements vscode.DocumentSemanticTokensPr
         });
 
         return builder.build();
+    }
+
+    private pushTokens(tLine: string, propNameOffset: number, padding: number, builder: vscode.SemanticTokensBuilder, lineNum: number, line: string) {
+        const spacePos = tLine.indexOf(' ', 3 + propNameOffset);
+        const pathStart = padding + 2;
+        builder.push(lineNum, padding, 1, TokenType.xmlPunctuation, 0);
+        builder.push(lineNum, padding + 1, 1, TokenType.xmlPunctuation, 0);
+        const endPos = tLine.endsWith(',') ? line.length - 2 : line.length - 1;
+        builder.push(lineNum, endPos, 1, TokenType.xmlPunctuation, 0);
+        const path = tLine.substring(0, spacePos);
+        const pathParts = path.split('@');
+        let prevPartLen = 0;
+        pathParts.forEach((part, index) => {
+            if (index === 0) {
+                builder.push(lineNum, pathStart, part.length - 2, TokenType.nodeNameTest, 0);
+                prevPartLen = part.length;
+            } else {
+                builder.push(lineNum, pathStart + prevPartLen - 2, part.length + 1, TokenType.attributeNameTest, 0);
+            }
+        });
     }
 }
