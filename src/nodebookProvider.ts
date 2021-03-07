@@ -87,7 +87,7 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 		);
 
 		vscode.notebook.registerNotebookKernelProvider({
-			viewType: 'nodebook',
+			viewType: 'xbook',
 		}, {
 			provideKernels: () => {
 				return [this];

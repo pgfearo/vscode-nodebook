@@ -50,7 +50,7 @@ export class NodeKernel {
 	public getLaunchConfig() {
 		return {
 			__notebookID: this.document.uri.toString(),
-			name: 'nodebook',
+			name: 'xbook',
 			request: 'attach',
 			type: 'node2',	// doesn't work with 'pwa-node'
 			port: this.debugPort,

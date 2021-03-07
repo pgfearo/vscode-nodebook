@@ -48,9 +48,9 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(
 		vscode.languages.registerDocumentSemanticTokensProvider({ language: 'json' }, new XpathResultTokenProvider(), legend),
-		vscode.notebook.registerNotebookContentProvider('nodebook', nodebookContentProvider),
+		vscode.notebook.registerNotebookContentProvider('xbook', nodebookContentProvider),
 
-		vscode.commands.registerCommand('nodebook.toggleDebugging', () => {
+		vscode.commands.registerCommand('xbook.toggleDebugging', () => {
 			if (vscode.window.activeNotebookEditor) {
 				const { document } = vscode.window.activeNotebookEditor;
 				const nodebook = nodebookContentProvider.lookupNodebook(document.uri);
@@ -60,7 +60,7 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		}),
 
-		vscode.commands.registerCommand('nodebook.restartKernel', () => {
+		vscode.commands.registerCommand('xbook.restartKernel', () => {
 			if (vscode.window.activeNotebookEditor) {
 				const { document } = vscode.window.activeNotebookEditor;
 				const nodebook = nodebookContentProvider.lookupNodebook(document.uri);

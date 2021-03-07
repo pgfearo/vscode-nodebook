@@ -12,8 +12,8 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onNotebookEditor:nodebook",
-		"onNotebook:nodebook",
+		"onNotebookEditor:xbook",
+		"onNotebook:xbook",
 		"onDebugDynamicConfigurations:node"
 	],
 	"main": "./out/extension.js",
@@ -25,7 +25,7 @@
 	"contributes": {
 		"languages": [
 			{
-				"id": "nodebook",
+				"id": "xbook",
 				"aliases": [
 					"Node.js Notebook"
 				]
@@ -33,11 +33,11 @@
 		],
 		"notebookProvider": [
 			{
-				"viewType": "nodebook",
-				"displayName": "Node.js Notebook",
+				"viewType": "xbook",
+				"displayName": "XPath Notebook",
 				"selector": [
 					{
-						"filenamePattern": "*.nodebook"
+						"filenamePattern": "*.xbook"
 					}
 				]
 			}
@@ -45,24 +45,24 @@
 		"commands": [
 			{
 				"title": "Toggle Debugging",
-				"command": "nodebook.toggleDebugging",
+				"command": "xbook.toggleDebugging",
 				"icon": "$(bug)"
 			},
 			{
 				"title": "Restart Kernel",
-				"command": "nodebook.restartKernel",
+				"command": "xbook.restartKernel",
 				"icon": "$(refresh)"
 			}
 		],
 		"menus": {
 			"editor/title": [
 				{
-					"command": "nodebook.toggleDebugging",
+					"command": "xbook.toggleDebugging",
 					"when": "notebookEditorFocused",
 					"group": "navigation@1"
 				},
 				{
-					"command": "nodebook.restartKernel",
+					"command": "xbook.restartKernel",
 					"when": "notebookEditorFocused",
 					"group": "navigation@2"
 				}
