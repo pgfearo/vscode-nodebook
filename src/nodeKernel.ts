@@ -336,12 +336,12 @@ export class NodeKernel {
 							let path = pad + convertPath(SaxonJS.XPath.evaluate('path(.)', result));
 							path = path.trim();
 							const sValue = SaxonJS.XPath.evaluate('string(.)', result);
-							parts.push('"\ue0ee ' + deQuote(JSON.stringify(path)) + ' ' + deQuote(JSON.stringify(sValue)) + '"');
+							parts.push('"\u1680' + deQuote(JSON.stringify(path)) + ' ' + deQuote(JSON.stringify(sValue)) + '"');
 						} else if (result.qname && result.value) {
 							let path = pad + convertPath(SaxonJS.XPath.evaluate('path(.)', result));
 							path = path.trim();
 							const sValue = result.value;
-							parts.push('"\ue0ee ' + deQuote(JSON.stringify(path)) + ' ' + deQuote(JSON.stringify(sValue)) + '"');
+							parts.push('"\u1680' + deQuote(JSON.stringify(path)) + ' ' + deQuote(JSON.stringify(sValue)) + '"');
 						} else {
 							parts.push('\{');
 							const entries = Object.entries(result);

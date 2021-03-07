@@ -15,9 +15,10 @@ enum LineType {
 }
 
 enum TokenType {
-    punctuation,
-    keyword,
-    variable
+    comment,
+    nodeNameTest,
+    xmlPunctuation,
+    attributeNameTest
 }
 
 
@@ -55,13 +56,26 @@ export class XpathResultTokenProvider implements vscode.DocumentSemanticTokensPr
                 char = cp? String.fromCodePoint(cp) : '';
             }
             switch (char) {
-                case '\ue0ee':
-                    const spacePos = tLine.indexOf(' ', 3);
-                    const pathStart = padding + 3;
-                    builder.push(lineNum, padding, 2, TokenType.variable, 0);
-                    const endPos = tLine.endsWith(',')? line.length - 2 : line.length - 1;
-                    builder.push(lineNum, endPos, 1, TokenType.variable, 0);
-                    builder.push(lineNum, pathStart, spacePos - 2, TokenType.keyword, 0);
+                case '\u1680':
+                    if (tLine.charAt(2) === '/') {
+                        const spacePos = tLine.indexOf(' ', 3);
+                        const pathStart = padding + 2;
+                        builder.push(lineNum, padding, 1, TokenType.xmlPunctuation, 0);
+                        builder.push(lineNum, padding + 1, 1, TokenType.xmlPunctuation, 0);
+                        const endPos = tLine.endsWith(',')? line.length - 2 : line.length - 1;
+                        builder.push(lineNum, endPos, 1, TokenType.xmlPunctuation, 0);
+                        const path = tLine.substring(0, spacePos);
+                        const pathParts = path.split('@');
+                        let prevPartLen = 0;
+                        pathParts.forEach((part, index) => {
+                            if (index === 0) {
+                                builder.push(lineNum, pathStart, part.length - 2, TokenType.nodeNameTest, 0);
+                                prevPartLen = part.length;
+                            } else {
+                                builder.push(lineNum, pathStart + prevPartLen - 2, part.length + 1, TokenType.attributeNameTest, 0);
+                            }
+                        });
+                    }
                     break;
                 case '{':
                     stack.push(LineType.Object);
