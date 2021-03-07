@@ -1,8 +1,9 @@
 {
-	"name": "vscode-nodebook",
-	"displayName": "Nodebook",
-	"description": "Node.js Notebook for VS Code",
-	"version": "1.0.0",
+	"name": "xpath-notebook",
+	"displayName": "XPath Notebook",
+	"description": "XPath-JS Notebook for VS Code",
+	"version": "0.0.1",
+	"publisher": "deltaxml",
 	"enableProposedApi": true,
 	"engines": {
 		"vscode": "^1.49.0"

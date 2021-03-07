@@ -224,7 +224,7 @@ export class NodeKernel {
 				const cell = this.document.cells.find(c => c.uri.toString() === uri);
 				if (cell) {
 					if (!this.tmpDirectory) {
-						this.tmpDirectory = fs.mkdtempSync(PATH.join(os.tmpdir(), 'vscode-nodebook-'));
+						this.tmpDirectory = fs.mkdtempSync(PATH.join(os.tmpdir(), 'xpath-notebook-'));
 					}
 					const cellPath = `${this.tmpDirectory}/nodebook_cell_${cellUri.fragment}.js`;
 					this.pathToCell.set(cellPath, cell);
@@ -257,7 +257,7 @@ export class NodeKernel {
 				const cell = this.document.cells.find(c => c.uri.toString() === uri);
 				if (cell) {
 					if (!this.tmpDirectory) {
-						this.tmpDirectory = fs.mkdtempSync(PATH.join(os.tmpdir(), 'vscode-nodebook-'));
+						this.tmpDirectory = fs.mkdtempSync(PATH.join(os.tmpdir(), 'xpath-notebook-'));
 					}
 					const cellPath = `${this.tmpDirectory}/nodebook_cell_${cellUri.fragment}.js`;
 					this.pathToCell.set(cellPath, cell);
@@ -280,7 +280,7 @@ export class NodeKernel {
 	private dumpSaxonLoader(): string | undefined {
 		try {
 			if (!this.tmpDirectory) {
-				this.tmpDirectory = fs.mkdtempSync(PATH.join(os.tmpdir(), 'vscode-nodebook-'));
+				this.tmpDirectory = fs.mkdtempSync(PATH.join(os.tmpdir(), 'xpath-notebook-'));
 			}
 			const saxonLoaderPath = `${this.tmpDirectory}/saxonLoader.js`;
 			const nl = "'\\n'";

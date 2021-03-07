@@ -11,7 +11,7 @@
 			"request": "launch",
 			"args": [
 				"--extensionDevelopmentPath=${workspaceFolder}",
-				"--enable-proposed-api", "undefined_publisher.vscode-nodebook",
+				"--enable-proposed-api", "deltaxml.xpath-notebook",
 				"${workspaceFolder}/samplenotebooks"
 			],
 			"outFiles": [

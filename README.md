@@ -28,7 +28,7 @@ Notebook cells with the _XPath_ language id are evaluated using [Saxon-JS](https
 
 ## Implementation
 
-This extension provides a Notebook Kernel that effectively wraps the Node.js REPL based [NodeKernel](https://github.com/microsoft/vscode-nodebook).
+This extension provides a Notebook Kernel that effectively wraps the Node.js REPL based [NodeKernel](https://github.com/microsoft/xpath-notebook).
 
 To run from the reposistory, you need to first load dependencies. This project uses yarn for package management, so run:
 
