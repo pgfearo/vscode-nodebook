@@ -7,6 +7,8 @@ import { config } from 'process';
 import * as vscode from 'vscode';
 import { NodebookContentProvider } from './nodebookProvider';
 import { XpathResultTokenProvider } from './xpathResultTokenProvider';
+import * as path from 'path';
+import * as url from 'url';
 
 const tokenModifiers = new Map<string, number>();
 
@@ -32,6 +34,7 @@ export function activate(context: vscode.ExtensionContext) {
 		if (editor) {
 			if (editor.document.uri.scheme !== nbScheme) {
 				ExtensionData.lastEditorUri = editor.document.uri.toString();
+				ExtensionData.setBaseUri(editor.document.uri);
 			}
 		} else if (!ExtensionData.lastEditorUri && vscode.workspace.textDocuments.length > 0) {
 			const documents = vscode.workspace.textDocuments;
@@ -39,6 +42,7 @@ export function activate(context: vscode.ExtensionContext) {
 				const document = documents[i];
 				if (document.uri.scheme !== nbScheme) {
 					ExtensionData.lastEditorUri = document.uri.toString();
+					ExtensionData.setBaseUri(document.uri);
 				}
 			}
 		}
@@ -97,4 +101,28 @@ export function deactivate() {
 export class ExtensionData {
 	static extensionPath: string = '';
 	static lastEditorUri: string | undefined;
+	private static baseUri: string|undefined;
+
+	static calcBaseUri(uri: vscode.Uri) {
+		const path = uri.toString();
+		const pathEnd = path.lastIndexOf('/');
+		const result = path.substring(0, pathEnd);
+		return result;
+	}
+	static setBaseUri(uri: vscode.Uri) {
+		const result = this.calcBaseUri(uri);
+		ExtensionData.baseUri = result;
+	}
+
+	static getBaseUri() {
+		if (this.baseUri) {
+			return this.baseUri;
+		}
+		const f = vscode.workspace.workspaceFolders;
+		if (f && f.length > 0) {
+			return this.calcBaseUri(f[0].uri);
+		} else {
+			return undefined;
+		}
+	}
 } 

@@ -206,6 +206,7 @@ export class NodeKernel {
 					
 					var options = {
 						namespaceContext: Object.assign(baseXmlns, docXmlns),
+						staticBaseURI: '${ExtensionData.getBaseUri()}', 
 						params: {
 							'_': prevResult
 						}
@@ -217,7 +218,9 @@ export class NodeKernel {
 				} else {
 					contextScript = `
 					var context = SaxonJS.XPath.evaluate('()');
-					var options = {};
+					var options = {
+						staticBaseURI: '${ExtensionData.calcBaseUri(this.document.uri)}' 
+					};
 					`;
 				}
 				// find cell in document by matching its URI
