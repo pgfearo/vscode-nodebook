@@ -89,7 +89,7 @@ export class NodeKernel {
 
 	public async eval(cell: vscode.NotebookCell): Promise<string> {
 
-		const cellPath = cell.language === 'xpath' ? this.dumpCell(cell.uri.toString()) : this.dumpJSCell(cell.uri.toString());
+		const cellPath = cell.document.languageId === 'xpath' ? this.dumpCell(cell.document.uri.toString()) : this.dumpJSCell(cell.document.uri.toString());
 		if (cellPath && this.nodeRuntime && this.nodeRuntime.stdin) {
 			this.outputBuffer = '';
 			this.nodeRuntime.stdin.write(`.load ${cellPath}\n`);
@@ -138,8 +138,8 @@ export class NodeKernel {
 					if (source.path) {
 						let cell = this.pathToCell.get(source.path);
 						if (cell) {
-							source.path = cell.uri.toString();
-							source.name = PATH.basename(cell.uri.fsPath);
+							source.path = cell.document.uri.toString();
+							source.name = PATH.basename(cell.document.uri.fsPath);
 							// append cell index to name
 							const cellIndex = this.document.cells.indexOf(cell);
 							if (cellIndex >= 0) {
@@ -224,7 +224,7 @@ export class NodeKernel {
 					`;
 				}
 				// find cell in document by matching its URI
-				const cell = this.document.cells.find(c => c.uri.toString() === uri);
+				const cell = this.document.cells.find(c => c.document.uri.toString() === uri);
 				if (cell) {
 					if (!this.tmpDirectory) {
 						this.tmpDirectory = fs.mkdtempSync(PATH.join(os.tmpdir(), 'xpath-notebook-'));
@@ -257,7 +257,7 @@ export class NodeKernel {
 			const cellUri = vscode.Uri.parse(uri, true);
 			if (cellUri.scheme === 'vscode-notebook-cell') {
 				// find cell in document by matching its URI
-				const cell = this.document.cells.find(c => c.uri.toString() === uri);
+				const cell = this.document.cells.find(c => c.document.uri.toString() === uri);
 				if (cell) {
 					if (!this.tmpDirectory) {
 						this.tmpDirectory = fs.mkdtempSync(PATH.join(os.tmpdir(), 'xpath-notebook-'));

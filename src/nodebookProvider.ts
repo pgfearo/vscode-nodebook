@@ -42,7 +42,7 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 					this.register(
 						docKey,
 						project,
-						key => document.cells.some(cell => cell.uri.toString() === key) || (key === docKey),
+						key => document.cells.some(cell => cell.document.uri.toString() === key) || (key === docKey),
 					);
 				}
 			}),
@@ -127,14 +127,14 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 			raw = [];
 		}
 
-		const notebookDocMetadata = new vscode.NotebookDocumentMetadata(true,true,true,true,);
+		const notebookDocMetadata = new vscode.NotebookDocumentMetadata(true,true,true);
 
 		const notebookData: vscode.NotebookData = {
 			metadata: notebookDocMetadata,
 			cells: raw.map(item => ({
 				source: item.value,
 				language: item.language,
-				cellKind: item.kind,
+				kind: item.kind,
 				outputs: [],
 				metadata: new vscode.NotebookCellMetadata().with({ custom: { testCellMetadata: 123 } })
 			}))
@@ -167,7 +167,7 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 
 		let output = '';
 		let error: Error | undefined;
-		const nodebook = this.lookupNodebook(cell.uri);
+		const nodebook = this.lookupNodebook(cell.document.uri);
 		const start = +new Date();
 
 		if (nodebook) {
@@ -214,7 +214,7 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 			const lastRunDuration = +new Date() - start;
 			//const parsed = JSON.parse(output);
 			console.log('parsed', output);
-			if (cell.language === 'xpath') {
+			if (cell.document.languageId === 'xpath') {
 				const cellOutItem: NotebookCellOutputItem = new NotebookCellOutputItem('application/json', JSON.parse(output));
 				const cellRichOutItem: NotebookCellOutputItem = new NotebookCellOutputItem('xpath-notebook/xpath', output);
 				const cellOutOutput = new NotebookCellOutput([cellOutItem, cellRichOutItem]);
@@ -258,8 +258,8 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 		let contents: RawNotebookCell[] = [];
 		for (let cell of document.cells) {
 			contents.push({
-				kind: cell.cellKind,
-				language: cell.language,
+				kind: cell.kind,
+				language: cell.document.languageId,
 				value: cell.document.getText(),
 			});
 		}
