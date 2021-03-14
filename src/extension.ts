@@ -7,6 +7,7 @@ import { config } from 'process';
 import * as vscode from 'vscode';
 import { NodebookContentProvider } from './nodebookProvider';
 import { XpathResultTokenProvider } from './xpathResultTokenProvider';
+import { JsonDefinitionProvider } from './jsonDefinitionProvider';
 import * as path from 'path';
 import * as url from 'url';
 
@@ -53,6 +54,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		vscode.languages.registerDocumentSemanticTokensProvider({ language: 'json' }, new XpathResultTokenProvider(), legend),
 		vscode.notebook.registerNotebookContentProvider('xbook', nodebookContentProvider),
+		vscode.languages.registerDefinitionProvider({ language: 'json' }, new JsonDefinitionProvider()),
 
 		vscode.commands.registerCommand('xbook.toggleDebugging', () => {
 			if (vscode.window.activeNotebookEditor) {
