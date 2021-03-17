@@ -1,0 +1,6 @@
+<authors xmlns="http://authors.qutoric.com">
+    <description>List of authors</description>
+    <author first="Helen" last="Goldsmith"/>
+    <author first="Pippa" last="Story"/>
+    <author first="Jane" last="Pullman"/>
+</authors>
