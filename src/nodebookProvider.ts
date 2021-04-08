@@ -6,6 +6,7 @@
 import * as vscode from 'vscode';
 import { Nodebook } from './nodebook';
 import { CustomDocumentEditEvent, NotebookCellOutput, NotebookCellOutputItem } from 'vscode';
+import { callbackify } from 'util';
 
 interface RawNotebookCell {
 	language: string;
@@ -28,6 +29,8 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 	private _localDisposables: vscode.Disposable[] = [];
 	private readonly _associations = new Map<string, [ProjectAssociation, Nodebook]>();
 	private runIndex = 0;
+	private _cells: vscode.NotebookCellData[] = [];
+	private _documentUri: vscode.Uri | undefined;
 
 	onDidChangeNotebook: vscode.Event<CustomDocumentEditEvent> = new vscode.EventEmitter<CustomDocumentEditEvent>().event;
 
@@ -95,6 +98,21 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 		});
 	}
 
+	public async executeCellsRequest(document: vscode.NotebookDocument, ranges: vscode.NotebookCellRange[]) {
+		const execTask = vscode.notebook.createNotebookCellExecutionTask(document.uri, ++this.runIndex, this.id );
+		const cellItems: vscode.NotebookCellData[] = [];
+		ranges.forEach((cellRange) => {
+			for (let x = cellRange.start; x < cellRange.end; x++) {
+				cellItems.push(this._cells[x]);
+			}
+		});
+
+		for (let x = 0; x < cellItems.length; x++) {
+			await this.executeCell(cellItems[x])
+		}
+
+	}
+
 	public lookupNodebook(keyOrUri: string | vscode.Uri | undefined): Nodebook | undefined {
 		if (keyOrUri) {
 			let key: string;
@@ -113,7 +131,7 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 	}
 
 	async openNotebook(uri: vscode.Uri): Promise<vscode.NotebookData> {
-
+		this._documentUri = uri;
 		let contents = '';
 		try {
 			contents = Buffer.from(await vscode.workspace.fs.readFile(uri)).toString('utf8');
@@ -129,15 +147,17 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 
 		const notebookDocMetadata = new vscode.NotebookDocumentMetadata(true,true,true);
 
+		this._cells = raw.map(item => ({
+			source: item.value,
+			language: item.language,
+			kind: item.kind,
+			outputs: [],
+			metadata: new vscode.NotebookCellMetadata().with({ custom: { testCellMetadata: 123 } })
+		}));
+
 		const notebookData: vscode.NotebookData = {
 			metadata: notebookDocMetadata,
-			cells: raw.map(item => ({
-				source: item.value,
-				language: item.language,
-				kind: item.kind,
-				outputs: [],
-				metadata: new vscode.NotebookCellMetadata().with({ custom: { testCellMetadata: 123 } })
-			}))
+			cells: this._cells
 		};
 
 		return notebookData;
@@ -164,17 +184,17 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 		};
 	}
 
-	public async executeCell(_document: vscode.NotebookDocument, cell: vscode.NotebookCell): Promise<void> {
+	public async executeCell(cell: vscode.NotebookCell): Promise<void> {
 
 		let output = '';
 		let error: Error | undefined;
 		const nodebook = this.lookupNodebook(cell.document.uri);
 		const start = +new Date();
 
-		if (nodebook) {
+		if (nodebook && this._documentUri) {
 			try {
 				const preEdit = new vscode.WorkspaceEdit();
-				preEdit.replaceNotebookCellMetadata(_document.uri, cell.index, new vscode.NotebookCellMetadata().with({runState: vscode.NotebookCellRunState.Running}));
+				preEdit.replaceNotebookCellMetadata(this._documentUri, cell.index, new vscode.NotebookCellMetadata().with({runState: vscode.NotebookCellRunState.Running}));
 				await vscode.workspace.applyEdit(preEdit);
 				output = await nodebook.eval(cell);
 				if (output.startsWith('Uncaught Error')) {
@@ -230,6 +250,8 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 
 
 			///
+
+
 			edit.replaceNotebookCellMetadata(_document.uri, cell.index, new vscode.NotebookCellMetadata().with({runState: vscode.NotebookCellRunState.Success, lastRunDuration: lastRunDuration, executionOrder: ++this.runIndex}));
 		}
 		await vscode.workspace.applyEdit(edit);
