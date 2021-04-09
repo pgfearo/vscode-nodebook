@@ -99,29 +99,12 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 	}
 
 	public async executeCellsRequest(document: vscode.NotebookDocument, ranges: vscode.NotebookCellRange[]) {
-
 		for(let range of ranges) {
             for(let cell of document.getCells(range)) {
                 const execution = vscode.notebook.createNotebookCellExecutionTask(cell.notebook.uri, cell.index, this.id)!;
 			    await this.executeCell(execution);
             }
         }
-		const cellItems: vscode.NotebookCellData[] = [];
-		ranges.forEach((cellRange) => {
-			for (let x = cellRange.start; x < cellRange.end; x++) {
-				cellItems.push(this._cells[x]);
-			}
-		});
-
-		for (let x = 0; x < cellItems.length; x++) {
-			const execTask = vscode.notebook.createNotebookCellExecutionTask(document.uri, ++this.runIndex, this.id );
-			if (execTask) {
-				execTask.start();
-				await this.executeCell(execTask);
-				execTask.end();
-			}
-		}
-
 	}
 
 	public lookupNodebook(keyOrUri: string | vscode.Uri | undefined): Nodebook | undefined {
