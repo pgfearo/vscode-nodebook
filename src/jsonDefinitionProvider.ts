@@ -6,7 +6,7 @@ export class JsonDefinitionProvider implements vscode.DefinitionProvider {
 	public async provideDefinition(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): Promise<vscode.Location | undefined> {
         
 
-		return new Promise( async (resolve, reject) => {
+		return new Promise( async (resolve) => {
             
 			let location: vscode.Location|undefined = undefined;
             const textLine = document.lineAt(position);

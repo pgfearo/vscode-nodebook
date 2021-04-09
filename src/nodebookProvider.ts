@@ -45,7 +45,7 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 					this.register(
 						docKey,
 						project,
-						key => document.cells.some(cell => cell.document.uri.toString() === key) || (key === docKey),
+						key => document.getCells().some(cell => cell.document.uri.toString() === key) || (key === docKey),
 					);
 				}
 			}),
@@ -99,7 +99,13 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 	}
 
 	public async executeCellsRequest(document: vscode.NotebookDocument, ranges: vscode.NotebookCellRange[]) {
-		const execTask = vscode.notebook.createNotebookCellExecutionTask(document.uri, ++this.runIndex, this.id );
+
+		for(let range of ranges) {
+            for(let cell of document.getCells(range)) {
+                const execution = vscode.notebook.createNotebookCellExecutionTask(cell.notebook.uri, cell.index, this.id)!;
+			    await this.executeCell(execution);
+            }
+        }
 		const cellItems: vscode.NotebookCellData[] = [];
 		ranges.forEach((cellRange) => {
 			for (let x = cellRange.start; x < cellRange.end; x++) {
@@ -108,7 +114,12 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 		});
 
 		for (let x = 0; x < cellItems.length; x++) {
-			await this.executeCell(cellItems[x])
+			const execTask = vscode.notebook.createNotebookCellExecutionTask(document.uri, ++this.runIndex, this.id );
+			if (execTask) {
+				execTask.start();
+				await this.executeCell(execTask);
+				execTask.end();
+			}
 		}
 
 	}
@@ -184,17 +195,19 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 		};
 	}
 
-	public async executeCell(cell: vscode.NotebookCell): Promise<void> {
-
+	private async executeCell(cellExecTask: vscode.NotebookCellExecutionTask): Promise<void> {
+		const cell: vscode.NotebookCell = cellExecTask.cell;
 		let output = '';
 		let error: Error | undefined;
 		const nodebook = this.lookupNodebook(cell.document.uri);
-		const start = +new Date();
+		const start = Date.now();
+
+		cellExecTask.executionOrder = ++this.runIndex;
+		cellExecTask.start({ startTime: start });
 
 		if (nodebook && this._documentUri) {
 			try {
 				const preEdit = new vscode.WorkspaceEdit();
-				preEdit.replaceNotebookCellMetadata(this._documentUri, cell.index, new vscode.NotebookCellMetadata().with({runState: vscode.NotebookCellRunState.Running}));
 				await vscode.workspace.applyEdit(preEdit);
 				output = await nodebook.eval(cell);
 				if (output.startsWith('Uncaught Error')) {
@@ -208,63 +221,30 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 				error = e;
 			}
 		}
-		const edit = new vscode.WorkspaceEdit();
 
 		if (error) {
-			// via workspace edit
-			const  errMetadata: vscode.WorkspaceEditEntryMetadata = {
-				needsConfirmation: false,
-				label: 'philsTest',
-				description: 'philsDescription',				
-			}
 			const cellErrorItem: NotebookCellOutputItem = new NotebookCellOutputItem('text/plain', error.toString());
 			const cellErrorOuput = new NotebookCellOutput([cellErrorItem]);
-			edit.replaceNotebookCellOutput(_document.uri, cell.index, [cellErrorOuput], errMetadata);
-			edit.replaceNotebookCellMetadata(_document.uri, cell.index, new vscode.NotebookCellMetadata().with({runState: vscode.NotebookCellRunState.Error}));
+			cellExecTask.replaceOutput(cellErrorOuput);
+			cellExecTask.end({ success: false });
 		} else {
-			const  outMetadata: vscode.WorkspaceEditEntryMetadata = {
-				needsConfirmation: false,
-				label: 'philsTest',
-				description: 'philsDescription',
-			}
-			const  outRichMetadata: vscode.WorkspaceEditEntryMetadata = {
-				needsConfirmation: false,
-				label: 'philsTest2',
-				description: 'philsDescription2',
-			}
-			const lastRunDuration = +new Date() - start;
-			//const parsed = JSON.parse(output);
 			console.log('parsed', output);
 			if (cell.document.languageId === 'xpath') {
 				const cellOutItem: NotebookCellOutputItem = new NotebookCellOutputItem('application/json', JSON.parse(output));
 				const cellRichOutItem: NotebookCellOutputItem = new NotebookCellOutputItem('xpath-notebook/xpath', output);
 				const cellOutOutput = new NotebookCellOutput([cellOutItem, cellRichOutItem]);
-	
-				edit.replaceNotebookCellOutput(_document.uri, cell.index, [cellOutOutput], outMetadata);
+				cellExecTask.replaceOutput(cellOutOutput);
 			} else {
 				const cellOutItem: NotebookCellOutputItem = new NotebookCellOutputItem('text/plain', output);
 				const cellOutOutput = new NotebookCellOutput([cellOutItem]);
-	
-				edit.replaceNotebookCellOutput(_document.uri, cell.index, [cellOutOutput], outMetadata);
+				cellExecTask.replaceOutput(cellOutOutput);
 			}
-
-
-			///
-
-
-			edit.replaceNotebookCellMetadata(_document.uri, cell.index, new vscode.NotebookCellMetadata().with({runState: vscode.NotebookCellRunState.Success, lastRunDuration: lastRunDuration, executionOrder: ++this.runIndex}));
+			cellExecTask.end({ success: true });
 		}
-		await vscode.workspace.applyEdit(edit);
 	}
 
 	public cancelCellExecution(_document: vscode.NotebookDocument, _cell: vscode.NotebookCell): void {
 		// not yet supported
-	}
-
-	public async executeAllCells(document: vscode.NotebookDocument): Promise<void> {
-		for (const cell of document.cells) {
-			await this.executeCell(document, cell);
-		}
 	}
 
 	cancelAllCellsExecution(_document: vscode.NotebookDocument): void {
@@ -279,7 +259,7 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 
 	private async _save(document: vscode.NotebookDocument, targetResource: vscode.Uri): Promise<void> {
 		let contents: RawNotebookCell[] = [];
-		for (let cell of document.cells) {
+		for (let cell of document.getCells()) {
 			contents.push({
 				kind: cell.kind,
 				language: cell.document.languageId,
