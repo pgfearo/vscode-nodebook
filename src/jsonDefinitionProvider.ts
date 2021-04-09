@@ -3,7 +3,7 @@ import { ExtensionData } from './extension';
 
 export class JsonDefinitionProvider implements vscode.DefinitionProvider {
 
-	public async provideDefinition(document: vscode.TextDocument, position: vscode.Position): Promise<vscode.Location | undefined> {
+	public async provideDefinition(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): Promise<vscode.Location | undefined> {
         
 
 		return new Promise( async (resolve) => {
