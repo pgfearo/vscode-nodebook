@@ -9,6 +9,7 @@ export class JsonDefinitionProvider implements vscode.DefinitionProvider {
 		return new Promise( async (resolve) => {
             
 			let location: vscode.Location|undefined = undefined;
+            const isCancelRequested = token.isCancellationRequested;
             const textLine = document.lineAt(position);
             const indicatorPos = textLine.text.indexOf('\u1680');
             

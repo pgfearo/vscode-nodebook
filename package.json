@@ -2,7 +2,7 @@
 	"name": "xpath-notebook",
 	"displayName": "XPath Notebook",
 	"description": "XPath-JS Notebook for VS Code",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"publisher": "deltaxml",
 	"enableProposedApi": true,
 	"engines": {
