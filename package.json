@@ -4,6 +4,7 @@
 	"description": "XPath-JS Notebook for VS Code",
 	"version": "0.0.2",
 	"publisher": "deltaxml",
+	"repository": {"url": "https://github.com/pgfearo/vscode-nodebook"},
 	"enableProposedApi": true,
 	"engines": {
 		"vscode": "^1.49.0"
@@ -14,6 +15,7 @@
 	"activationEvents": [
 		"onNotebookEditor:xbook",
 		"onNotebook:xbook",
+		"onLanguage:xbook",
 		"onDebugDynamicConfigurations:node"
 	],
 	"main": "./out/extension.js",
@@ -29,6 +31,13 @@
 				"aliases": [
 					"XPath Notebook"
 				]
+			}
+		],
+		"grammars": [
+			{
+				"language": "xbook",
+				"scopeName": "source.xbook",
+				"path": "./syntaxes/JSON.tmLanguage.json"
 			}
 		],
 		"notebookProvider": [
