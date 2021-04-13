@@ -7,6 +7,7 @@ import * as vscode from 'vscode';
 import { Nodebook } from './nodebook';
 import { CustomDocumentEditEvent, NotebookCellOutput, NotebookCellOutputItem } from 'vscode';
 import { callbackify } from 'util';
+import { HtmlTables } from './htmlTables';
 
 interface RawNotebookCell {
 	language: string;
@@ -213,31 +214,10 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 		} else {
 			console.log('parsed', output);
 			if (cell.document.languageId === 'xpath') {
-				const cellOutItem: NotebookCellOutputItem = new NotebookCellOutputItem('application/json', JSON.parse(output));
+				const jsonObj = JSON.parse(output);
+				const cellOutItem: NotebookCellOutputItem = new NotebookCellOutputItem('application/json', jsonObj);
 				const cellRichOutItem: NotebookCellOutputItem = new NotebookCellOutputItem('xpath-notebook/xpath', output);
-				const htmlText = 
-`<table>
-<thead>
-<tr>
-<td>one</td>
-<td>on and the middlee</td>
-<td>one</td>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>one</td>
-<td>one</td>
-<td>one</td>
-</tr>
-<tr>
-<td><a href="test.css">one</a></td>
-<td>one</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-`
+				const htmlText = HtmlTables.constructTableForObject(jsonObj);
 				const cellMarkdownOutItem: NotebookCellOutputItem = new NotebookCellOutputItem('text/html', htmlText);
 				const cellOutOutput = new NotebookCellOutput([cellOutItem, cellMarkdownOutItem, cellRichOutItem]);
 				cellExecTask.replaceOutput(cellOutOutput);
