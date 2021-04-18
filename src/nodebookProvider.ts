@@ -187,7 +187,8 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 		const start = Date.now();
 
 		cellExecTask.executionOrder = ++this.runIndex;
-		cellExecTask.start({ startTime: start });
+		const metaData = { startTime: start }
+		cellExecTask.start(metaData);
 
 		if (nodebook && this._documentUri) {
 			try {
@@ -219,11 +220,11 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 				const cellRichOutItem: NotebookCellOutputItem = new NotebookCellOutputItem('xpath-notebook/xpath', output);
 				const htmlText = HtmlTables.constructTableForObject(jsonObj);
 				const cellMarkdownOutItem: NotebookCellOutputItem = new NotebookCellOutputItem('text/html', htmlText);
-				const cellOutOutput = new NotebookCellOutput([cellOutItem, cellMarkdownOutItem, cellRichOutItem]);
+				const cellOutOutput = new NotebookCellOutput([cellOutItem, cellMarkdownOutItem, cellRichOutItem], metaData);
 				cellExecTask.replaceOutput(cellOutOutput);
 			} else {
 				const cellOutItem: NotebookCellOutputItem = new NotebookCellOutputItem('text/plain', output);
-				const cellOutOutput = new NotebookCellOutput([cellOutItem]);
+				const cellOutOutput = new NotebookCellOutput([cellOutItem], metaData);
 				cellExecTask.replaceOutput(cellOutOutput);
 			}
 			cellExecTask.end({ success: true });
