@@ -166,11 +166,6 @@ export class NodebookContentProvider implements vscode.NotebookContentProvider, 
 		return this._save(document, targetResource);
 	}
 
-	// now deprecated - but currently still required by NotebookContentProvider interface
-	async resolveNotebook(_document: vscode.NotebookDocument, _webview: vscode.NotebookCommunication): Promise<void> {
-		// nothing
-	}
-
 	async backupNotebook(document: vscode.NotebookDocument, context: vscode.NotebookDocumentBackupContext, _cancellation: vscode.CancellationToken): Promise<vscode.NotebookDocumentBackup> {
 		await this._save(document, context.destination);
 		return {
